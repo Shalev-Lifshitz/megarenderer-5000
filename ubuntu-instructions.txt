@@ -48,7 +48,7 @@ $ cd ~
 
 ### STEP 5 - VERIFY INSTALLATION ###
 $ sudo apt-get install libopencv-dev (to fix next line not working)
-$ pkg-config --modversion opencv4
+$ pkg-config --modversion opencv4 #This should output the version of opencv you are using 
 
 #################### 2 ####################
 
@@ -93,9 +93,22 @@ $ ./output
 # https://www.youtube.com/watch?v=i1K9rXiei9I
 # This includes running CLion and changing CMakeLists.txt
 
+# Summary of video (in case its removed):
+# Download CLion from: https://www.jetbrains.com/clion/download/#section=linux
+# Extract into desired folder
+# Navigate to clion-2021.3.2/bin (changes with version)
+# Open terminal in this folder (where clion.sh is)
+$ sh '<insert path to clion.sh here>'  # surrounding '' are needed
+# This opens clion
+# Then, make a project and make add these lines to your makefile:
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+target_link_libraries(you_project_name ${OpenCV_LIBS})
+
 #################### 4 ####################
 
-# Then use this main.cpp to test (different headers from before):
+# Then use this main.cpp to test (some changes from before):
+# Note, Lenna image needs to be at top level of project
 ```
 #include <opencv2/highgui.hpp>
 #include <iostream>
@@ -103,7 +116,7 @@ $ ./output
 int main(int argc, char** argv){
 
 	cv::Mat image;
-	image = cv::imread("Lenna_(test_image).png", cv::IMREAD_UNCHANGED);
+	image = cv::imread("../Lenna_(test_image).png", cv::IMREAD_UNCHANGED);
 
 	if(!image.data){
 		std::cout <<  "Could not open or find the image" << std::endl ;
@@ -166,7 +179,7 @@ glm::mat4 transform(glm::vec2 const& Orientation, glm::vec3 const& Translate, gl
 int main(int argc, char** argv){
 
 	cv::Mat image;
-	image = cv::imread("Lenna_(test_image).png", cv::IMREAD_UNCHANGED);
+	image = cv::imread("../Lenna_(test_image).png", cv::IMREAD_UNCHANGED);
 
 	if(!image.data){
 		std::cout <<  "Could not open or find the image" << std::endl ;
