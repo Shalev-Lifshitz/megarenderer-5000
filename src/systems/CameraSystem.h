@@ -9,8 +9,11 @@ private:
     Camera camera;
 public:
     CameraSystem();
+
     void updateCamera(int keycode, glm::vec2 mousePosition);
+
     glm::vec3 getCameraPosition();
+
     glm::vec3 getCameraOrientation();
 };
 

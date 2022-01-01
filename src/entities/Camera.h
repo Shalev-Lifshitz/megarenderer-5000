@@ -9,9 +9,13 @@ private:
     glm::vec3 orientation;
 public:
     Camera();
+
     glm::vec3 getPosition();
+
     void setPosition(glm::vec3 newPosition);
+
     glm::vec3 getOrientation();
+
     void setOrientation(glm::vec3 newOrientation);
 };
 

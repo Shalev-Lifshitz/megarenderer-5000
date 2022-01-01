@@ -12,14 +12,22 @@ private:
     Meshes meshes;
     int64_t numEntities;
 public:
-    enum Entity { SPHERE, CUBE, TORUS, PYRAMID };
+    enum Entity {
+        SPHERE, CUBE, TORUS, PYRAMID
+    };
 
     EntitySystem();
+
     void updateGame(int keycode);
+
     void addEntity(Entity entity);
+
     void removeEntity(EntityID id);
+
     Positions getPositions();
+
     Orientations getOrientations();
+
     Meshes getMeshes();
 };
 

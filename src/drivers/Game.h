@@ -14,6 +14,7 @@ private:
     RenderSystem renderSystem;
 public:
     explicit Game(CameraSystem cameraSystem, EntitySystem entitySystem, RenderSystem renderSystem);
+
     bool runGameLoop(std::string backgroundImagePath);
 };
 

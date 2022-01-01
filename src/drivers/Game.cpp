@@ -7,7 +7,7 @@
 Game::Game(CameraSystem cameraSystem,
            EntitySystem entitySystem,
            RenderSystem renderSystem)
-           : renderSystem(cameraSystem, entitySystem) { // TODO: WHAT???? why is this needed to compile?
+        : renderSystem(cameraSystem, entitySystem) { // TODO: WHAT???? why is this needed to compile?
     this->cameraSystem = cameraSystem;
     this->entitySystem = entitySystem;
 }
@@ -16,8 +16,8 @@ bool Game::runGameLoop(std::string backgroundImagePath) {
     cv::Mat imageBackground;
     imageBackground = cv::imread(backgroundImagePath, cv::IMREAD_UNCHANGED);
 
-    if(!imageBackground.data){
-        std::cout <<  "Could not open or find the background image" << std::endl;
+    if (!imageBackground.data) {
+        std::cout << "Could not open or find the background image" << std::endl;
         return false;
     }
 

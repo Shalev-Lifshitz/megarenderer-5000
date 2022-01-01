@@ -13,8 +13,7 @@ void EntitySystem::addEntity(Entity entity) {
     EntityID id = numEntities;
 
     // TODO: Fill this with real code. Also, use builders?
-    switch(entity)
-    {
+    switch (entity) {
         case SPHERE:
             std::cout << "SPHERE" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
@@ -61,8 +60,7 @@ Meshes EntitySystem::getMeshes() {
 }
 
 void EntitySystem::updateGame(int keycode) {
-    switch(keycode)
-    {
+    switch (keycode) {
         case 83: // 'S' - SPHERE
             addEntity(SPHERE);
             break;

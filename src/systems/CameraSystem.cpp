@@ -7,8 +7,7 @@ CameraSystem::CameraSystem() {
 void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
     // Determine how to update camera position based on key pressed
     glm::vec3 positionUpdate;
-    switch(keycode)
-    {
+    switch (keycode) {
         case 119: // 'w' - FORWARD
             positionUpdate = glm::vec3(1, 0, 0);
             break;

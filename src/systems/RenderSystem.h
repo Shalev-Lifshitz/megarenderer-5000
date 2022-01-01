@@ -11,6 +11,7 @@ private:
     CameraSystem cameraSystem;
 public:
     RenderSystem(CameraSystem cameraSystem, EntitySystem entitySystem);
+
     cv::Mat renderScene(cv::Mat imageBackground);
 };
 

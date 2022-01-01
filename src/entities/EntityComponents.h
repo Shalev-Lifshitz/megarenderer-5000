@@ -8,7 +8,7 @@
 using EntityID = int64_t;
 
 // Define the type of each component map
-template <typename Type>
+template<typename Type>
 using ComponentMap = std::unordered_map<EntityID, Type>;
 using Positions = ComponentMap<glm::vec3>;
 using Orientations = ComponentMap<glm::vec3>;
