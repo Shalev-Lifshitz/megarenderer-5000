@@ -13,7 +13,10 @@ private:
     EntitySystem entitySystem;
     RenderSystem renderSystem;
 public:
-    explicit Game(CameraSystem cameraSystem, EntitySystem entitySystem, RenderSystem renderSystem);
+    explicit Game(
+            CameraSystem& cameraSystem1,
+            EntitySystem& entitySystem1,
+            RenderSystem& renderSystem1);
 
     bool runGameLoop(std::string backgroundImagePath);
 };

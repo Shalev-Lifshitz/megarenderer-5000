@@ -4,12 +4,11 @@
 #include "MouseCallback.cpp"
 
 
-Game::Game(CameraSystem cameraSystem,
-           EntitySystem entitySystem,
-           RenderSystem renderSystem)
-        : renderSystem(cameraSystem, entitySystem) { // TODO: WHAT???? why is this needed to compile?
-    this->cameraSystem = cameraSystem;
-    this->entitySystem = entitySystem;
+Game::Game(CameraSystem& cameraSystem1,
+           EntitySystem& entitySystem1,
+           RenderSystem& renderSystem1) : renderSystem(cameraSystem1, entitySystem1) { // TODO: WHAT???? why is this needed even when passing by ref?
+    this->cameraSystem = cameraSystem1;
+    this->entitySystem = entitySystem1;
 }
 
 bool Game::runGameLoop(std::string backgroundImagePath) {
