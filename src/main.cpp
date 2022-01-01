@@ -18,17 +18,25 @@ glm::mat4 transform(glm::vec2 const& Orientation, glm::vec3 const& Translate, gl
 }
 
 int main(int argc, char** argv){
-    cv::Mat image;
-    image = cv::imread("../gradient.jpeg", cv::IMREAD_UNCHANGED);
+    cv::Mat imageBackground;
+    imageBackground = cv::imread("../images/gradient.jpeg", cv::IMREAD_UNCHANGED);
 
-    if(!image.data){
-        std::cout <<  "Could not open or find the image" << std::endl ;
+    if(!imageBackground.data){
+        std::cout <<  "Could not open or find the background image" << std::endl ;
         return -1;
     }
 
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
-    cv::imshow("Display window", image);
+    int key;
+    int i = 0;
+    while (key != 27) {
+        cv::imshow("Display window", imageBackground);
 
-    cv::waitKey(0);
+        key = cv::waitKey(100);
+        std::cout << "Key pressed: " << key << std::endl;
+
+        i++;
+    }
+
     return 0;
 }
