@@ -1,7 +1,6 @@
 #include <opencv2/opencv.hpp>
 
 void MouseCallback(int event, int x, int y, int flags, void *userdata) {
-    // TODO, needs to call CameraSystem eventually...
     if (event == cv::EVENT_LBUTTONDOWN) {
         std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
     } else if (event == cv::EVENT_RBUTTONDOWN) {
