@@ -1,11 +1,12 @@
 #include "RenderSystem.h"
 
-RenderSystem::RenderSystem(CameraSystem cameraSystem, EntitySystem entitySystem) {
-    this->entitySystem = entitySystem; // TODO: This is copying... BAD.
-    this->cameraSystem = cameraSystem; // TODO: This is copying... BAD.
+RenderSystem::RenderSystem(CameraSystem &cameraSystem, EntitySystem &entitySystem) {
+    this->entitySystem = entitySystem;
+    this->cameraSystem = cameraSystem;
 }
 
-cv::Mat RenderSystem::renderScene(cv::Mat imageBackground) {
-    return imageBackground;
+std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
+    std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
     //TODO
+    return image;
 }

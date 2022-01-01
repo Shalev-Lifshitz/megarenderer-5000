@@ -4,15 +4,16 @@
 
 #include "CameraSystem.h"
 #include "EntitySystem.h"
+#include <memory.h>
 
 class RenderSystem {
 private:
     EntitySystem entitySystem;
     CameraSystem cameraSystem;
 public:
-    RenderSystem(CameraSystem cameraSystem, EntitySystem entitySystem);
+    RenderSystem(CameraSystem &cameraSystem, EntitySystem &entitySystem);
 
-    cv::Mat renderScene(cv::Mat imageBackground);
+    std::unique_ptr<cv::Mat> renderScene(cv::Mat &imageBackground);
 };
 
 
