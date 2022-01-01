@@ -19,7 +19,7 @@ glm::mat4 transform(glm::vec2 const& Orientation, glm::vec3 const& Translate, gl
 
 int main(int argc, char** argv){
     cv::Mat imageBackground;
-    imageBackground = cv::imread("../gradient.jpeg", cv::IMREAD_UNCHANGED);
+    imageBackground = cv::imread("../images/gradient.jpeg", cv::IMREAD_UNCHANGED);
 
     if(!imageBackground.data){
         std::cout <<  "Could not open or find the background image" << std::endl ;
