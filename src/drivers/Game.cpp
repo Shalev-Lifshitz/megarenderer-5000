@@ -36,9 +36,9 @@ bool Game::runGameLoop(std::string backgroundImagePath) {
 
     int key;
     while (key != 27) {
-        renderSystem.renderScene(imageBackground);
+        std::unique_ptr<cv::Mat> image = renderSystem.renderScene(imageBackground);
 
-        cv::imshow("Display window", imageBackground);
+        cv::imshow("Display window", *image);
 
         key = cv::waitKey(1);
         std::cout << "Key pressed: " << key << std::endl;
