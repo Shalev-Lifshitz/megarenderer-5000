@@ -20,10 +20,10 @@ void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
         case 100: // 'd' - RIGHT
             positionUpdate = glm::vec3(0, 0, 1);
             break;
-        case 9: // 'TAB' - UP
+        case 32: // 'SPACE' - UP
             positionUpdate = glm::vec3(0, 1, 0);
             break;
-        case 32: // 'SPACE' - DOWN
+        case 9: // 'TAB' - DOWN
             positionUpdate = glm::vec3(0, -1, 0);
             break;
     }

@@ -1,41 +1,42 @@
 #include "EntitySystem.h"
 
-EntitySystem::EntitySystem() {
+EntitySystem::EntitySystem(CameraSystem& cameraSystem1) {
+    cameraSystem = cameraSystem1;
     positions = Positions();
     orientations = Orientations();
     meshes = Meshes();
-    numEntities = 0;
+    totalEntitiesAdded = 0;
 }
 
 void EntitySystem::addEntity(Entity entity) {
     // Obtain new entity ID
-    numEntities++;
-    EntityID id = numEntities;
+    totalEntitiesAdded++;
+    EntityID id = totalEntitiesAdded;
 
     // TODO: Fill this with real code. Also, use builders?
     switch (entity) {
         case SPHERE:
             std::cout << "SPHERE" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
-            orientations[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            orientations[id] = -cameraSystem.getCameraOrientation();
             meshes[id] = cv::Mat();
             break;
         case CUBE:
             std::cout << "CUBE" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
-            orientations[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            orientations[id] = -cameraSystem.getCameraOrientation();
             meshes[id] = cv::Mat();
             break;
         case TORUS:
             std::cout << "TORUS" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
-            orientations[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            orientations[id] = -cameraSystem.getCameraOrientation();
             meshes[id] = cv::Mat();
             break;
         case PYRAMID:
             std::cout << "PYRAMID" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
-            orientations[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            orientations[id] = -cameraSystem.getCameraOrientation();
             meshes[id] = cv::Mat();
             break;
     }

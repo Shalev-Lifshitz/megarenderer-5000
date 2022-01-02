@@ -4,19 +4,21 @@
 #include <glm/glm.hpp> // vec2, vec3, mat4, radians
 #include <opencv2/opencv.hpp>
 #include "../entities/EntityComponents.h"
+#include "../systems/CameraSystem.h"
 
 class EntitySystem {
 private:
+    CameraSystem cameraSystem;
     Positions positions;
     Orientations orientations;
     Meshes meshes;
-    int64_t numEntities;
+    int64_t totalEntitiesAdded;
 public:
     enum Entity {
         SPHERE, CUBE, TORUS, PYRAMID
     };
 
-    EntitySystem();
+    explicit EntitySystem(CameraSystem& cameraSystem);
 
     void updateGame(int keycode);
 

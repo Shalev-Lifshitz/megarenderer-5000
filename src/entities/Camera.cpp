@@ -3,7 +3,7 @@
 
 Camera::Camera() {
     position = glm::vec3(0, 0, 0);
-    orientation = glm::vec3(0, 1, 0);
+    orientation = glm::vec3(1, 0, 0);
 }
 
 glm::vec3 Camera::getPosition() {
