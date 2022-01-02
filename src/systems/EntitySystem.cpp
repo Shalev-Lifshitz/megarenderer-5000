@@ -4,6 +4,7 @@ EntitySystem::EntitySystem(CameraSystem& cameraSystem1) {
     cameraSystem = cameraSystem1;
     positions = Positions();
     orientations = Orientations();
+    scales = Scales();
     meshes = Meshes();
     totalEntitiesAdded = 0;
 }
@@ -19,24 +20,28 @@ void EntitySystem::addEntity(Entity entity) {
             std::cout << "SPHERE" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
             orientations[id] = -cameraSystem.getCameraOrientation();
+            scales[id] = 1;
             meshes[id] = cv::Mat();
             break;
         case CUBE:
             std::cout << "CUBE" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
             orientations[id] = -cameraSystem.getCameraOrientation();
+            scales[id] = 1;
             meshes[id] = cv::Mat();
             break;
         case TORUS:
             std::cout << "TORUS" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
             orientations[id] = -cameraSystem.getCameraOrientation();
+            scales[id] = 1;
             meshes[id] = cv::Mat();
             break;
         case PYRAMID:
             std::cout << "PYRAMID" << std::endl;
             positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
             orientations[id] = -cameraSystem.getCameraOrientation();
+            scales[id] = 1;
             meshes[id] = cv::Mat();
             break;
     }
@@ -58,6 +63,10 @@ Orientations EntitySystem::getOrientations() {
 
 Meshes EntitySystem::getMeshes() {
     return meshes;
+}
+
+Scales EntitySystem::getScales() {
+    return scales;
 }
 
 void EntitySystem::updateGame(int keycode) {

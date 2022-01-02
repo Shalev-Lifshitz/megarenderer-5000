@@ -11,6 +11,7 @@ private:
     CameraSystem cameraSystem;
     Positions positions;
     Orientations orientations;
+    Scales scales;
     Meshes meshes;
     int64_t totalEntitiesAdded;
 public:
@@ -29,6 +30,8 @@ public:
     Positions getPositions();
 
     Orientations getOrientations();
+
+    Scales getScales();
 
     Meshes getMeshes();
 };

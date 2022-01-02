@@ -12,6 +12,7 @@ template<typename Type>
 using ComponentMap = std::unordered_map<EntityID, Type>;
 using Positions = ComponentMap<glm::vec3>;
 using Orientations = ComponentMap<glm::vec3>;
-using Meshes = ComponentMap<cv::Mat>; // Each Mat has shape totalEntitiesAdded x numTriangles x 3 x 3
+using Scales = ComponentMap<float>;
+using Meshes = ComponentMap<cv::Mat>; // Each Mat has shape numEntities x numTriangles x 3 x 3
 
 #endif //PSR_3D_RENDERER_ENTITYCOMPONENTS_H

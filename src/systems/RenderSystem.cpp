@@ -4,7 +4,8 @@ RenderSystem::RenderSystem(
         CameraSystem& cameraSystem1,
         EntitySystem& entitySystem1)
         : entitySystem(cameraSystem1) { // TODO: WHAT???? why is this needed even when passing by ref?
-    this->cameraSystem = cameraSystem1;
+    cameraSystem = cameraSystem1;
+    entitySystem = entitySystem1;
 }
 
 std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat& imageBackground) {
