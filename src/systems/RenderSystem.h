@@ -11,7 +11,7 @@ private:
     EntitySystem entitySystem;
     CameraSystem cameraSystem;
 public:
-    RenderSystem(CameraSystem &cameraSystem, EntitySystem &entitySystem);
+    RenderSystem(CameraSystem& cameraSystem, EntitySystem& entitySystem);
 
     std::unique_ptr<cv::Mat> renderScene(cv::Mat& imageBackground);
 };
