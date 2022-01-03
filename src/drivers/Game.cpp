@@ -17,13 +17,13 @@ void MouseCallback(int event, int x, int y, int flags, void *userdata) {
 Game::Game(CameraSystem& cameraSystem1,
            EntitySystem& entitySystem1,
            RenderSystem& renderSystem1)
-           : entitySystem(cameraSystem1), renderSystem(cameraSystem1, entitySystem1) { // TODO: WHAT???? why is this needed even when passing by ref?
+           : entitySystem(cameraSystem1, CameraSystem(0)), renderSystem(cameraSystem1, entitySystem1) { // TODO: WHAT???? why is this needed even when passing by ref?
     cameraSystem = cameraSystem1;
     entitySystem = entitySystem1;
     renderSystem = renderSystem1;
 }
 
-bool Game::runGameLoop(std::string backgroundImagePath) {
+bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth, int cameraViewAngle) {
     cv::Mat imageBackground;
     imageBackground = cv::imread(backgroundImagePath, cv::IMREAD_UNCHANGED);
 
@@ -31,6 +31,9 @@ bool Game::runGameLoop(std::string backgroundImagePath) {
         std::cout << "Could not open or find the background image" << std::endl;
         return false;
     }
+
+    // Resize screen
+    cv::resize(imageBackground, imageBackground, cv::Size(screenWidth, screenHeight));
 
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
     cv::setMouseCallback("Display window", MouseCallback, NULL); // TODO: how can we get mousePosition from this
