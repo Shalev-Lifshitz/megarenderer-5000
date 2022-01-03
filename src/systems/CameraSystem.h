@@ -15,6 +15,8 @@ public:
     glm::vec3 getCameraPosition();
 
     glm::vec3 getCameraOrientation();
+
+    void updateCameraOrientation(const glm::vec2 &mousePosition) const;
 };
 
 
