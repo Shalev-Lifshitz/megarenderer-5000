@@ -23,7 +23,7 @@ public:
 
     void updateGame(int keycode);
 
-    void addEntity(Entity entity);
+    void addEntity(Entity entity, glm::vec3 position);
 
     void removeEntity(EntityID id);
 
