@@ -9,7 +9,7 @@ EntitySystem::EntitySystem(CameraSystem& cameraSystem1) {
     totalEntitiesAdded = 0;
 }
 
-void EntitySystem::addEntity(Entity entity) {
+void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
     // Obtain new entity ID
     totalEntitiesAdded++;
     EntityID id = totalEntitiesAdded;
@@ -18,28 +18,28 @@ void EntitySystem::addEntity(Entity entity) {
     switch (entity) {
         case SPHERE:
             std::cout << "SPHERE" << std::endl;
-            positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = cv::Mat();
             break;
         case CUBE:
             std::cout << "CUBE" << std::endl;
-            positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = cv::Mat();
             break;
         case TORUS:
             std::cout << "TORUS" << std::endl;
-            positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = cv::Mat();
             break;
         case PYRAMID:
             std::cout << "PYRAMID" << std::endl;
-            positions[id] = glm::vec3{0.0f, 0.0f, 0.0f};
+            positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = cv::Mat();
