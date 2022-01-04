@@ -1,8 +1,7 @@
 #include "CameraSystem.h"
 
-CameraSystem::CameraSystem() {
-    camera = Camera();
-}
+CameraSystem::CameraSystem(int cameraViewAngle)
+    : camera(cameraViewAngle) {}
 
 void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
     // Determine how to update camera position based on key pressed
@@ -41,4 +40,8 @@ glm::vec3 CameraSystem::getCameraPosition() {
 
 glm::vec3 CameraSystem::getCameraOrientation() {
     return camera.getOrientation();
+}
+
+int CameraSystem::getCameraViewAngle() {
+    return camera.getCameraViewAngle();
 }

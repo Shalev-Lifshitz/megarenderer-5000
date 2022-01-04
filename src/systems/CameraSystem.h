@@ -8,13 +8,15 @@ class CameraSystem {
 private:
     Camera camera;
 public:
-    CameraSystem();
+    explicit CameraSystem(int cameraViewAngle);
 
     void updateCamera(int keycode, glm::vec2 mousePosition);
 
     glm::vec3 getCameraPosition();
 
     glm::vec3 getCameraOrientation();
+
+    int getCameraViewAngle();
 };
 
 

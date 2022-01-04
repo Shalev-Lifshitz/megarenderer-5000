@@ -7,8 +7,9 @@ class Camera {
 private:
     glm::vec3 position;
     glm::vec3 orientation;
+    int cameraViewAngle;
 public:
-    Camera();
+    Camera(int cameraViewAngle);
 
     glm::vec3 getPosition();
 
@@ -17,6 +18,10 @@ public:
     glm::vec3 getOrientation();
 
     void setOrientation(glm::vec3 newOrientation);
+
+    int getCameraViewAngle();
+
+    void setCameraViewAngle(int newCameraViewAngle);
 };
 
 
