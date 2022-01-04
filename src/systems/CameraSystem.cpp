@@ -1,3 +1,4 @@
+#include <iostream>
 #include "CameraSystem.h"
 
 CameraSystem::CameraSystem() {
@@ -33,6 +34,30 @@ void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
     camera.setPosition(newCameraPosition);
 
     // TODO: Update camera orientation
+    updateCameraOrientation(mousePosition);
+
+}
+
+void CameraSystem::updateCameraOrientation(const glm::vec2 &mousePosition) const {
+
+    // adding constants to change later (might be picture specific currently?)
+    float xScreenMidpoint = 500;
+    float yScreenMidpoint = 327.5;
+    float movementScalar = 10;
+
+    // defined area at the centre of the screen where the cursor does not move the camera orientation
+    bool xPosNeutral = 400 < mousePosition[0] && mousePosition[0] < 600;
+    bool yPosNeutral =  277 < mousePosition[1] && mousePosition[1] < 377;
+    // when the cursor is in the centre of the screen.
+    if (xPosNeutral && yPosNeutral) {
+        std::cout << "NO ORIENTATION UPDATE";
+    } else {
+        // we want to move the orientation
+        // calculate norm of vector with origin at screen midpoint
+        float xDist = abs(mousePosition[0] - xScreenMidpoint);
+        float yDist = abs(mousePosition[1] - yScreenMidpoint);
+        std::cout << "ORIENTATION UPDATED BY (" << xDist << ", " << yDist <<")";
+    }
 }
 
 glm::vec3 CameraSystem::getCameraPosition() {
