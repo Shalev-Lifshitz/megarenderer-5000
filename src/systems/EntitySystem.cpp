@@ -66,16 +66,16 @@ Scales EntitySystem::getScales() {
 void EntitySystem::updateGame(int keycode) {
     switch (keycode) {
         case 83: // 'S' - SPHERE
-            addEntity(SPHERE);
+            addEntity(SPHERE, cameraSystem.getCameraPosition());
             break;
         case 67: // 'C' - CUBE
-            addEntity(CUBE);
+            addEntity(CUBE, cameraSystem.getCameraPosition());
             break;
         case 84: // 'T' - TORUS
-            addEntity(TORUS);
+            addEntity(TORUS, cameraSystem.getCameraPosition());
             break;
         case 80: // 'P' - PYRAMID
-            addEntity(PYRAMID);
+            addEntity(PYRAMID, cameraSystem.getCameraPosition());
             break;
     }
 }
