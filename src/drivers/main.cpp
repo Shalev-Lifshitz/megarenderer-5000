@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
     int screenHeight = 800;
     int screenWidth = 800;
     Game game(cameraSystem, entitySystem, renderSystem);
-    bool success = game.runGameLoop(backgroundImagePath);
+    bool success = game.runGameLoop(backgroundImagePath, screenHeight, screenWidth);
 
     if (success) { return 0; }
     else { return -1; }

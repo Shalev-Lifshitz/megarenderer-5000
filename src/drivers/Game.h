@@ -18,7 +18,7 @@ public:
             EntitySystem& entitySystem1,
             RenderSystem& renderSystem1);
 
-    bool runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth, int cameraViewAngle);
+    bool runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth);
 };
 
 

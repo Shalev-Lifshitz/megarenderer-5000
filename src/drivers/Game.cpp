@@ -21,7 +21,7 @@ Game::Game(CameraSystem& cameraSystem1,
            entitySystem(entitySystem1),
            renderSystem(renderSystem1) {}
 
-bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth, int cameraViewAngle) {
+bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth) {
     cv::Mat imageBackground;
     imageBackground = cv::imread(backgroundImagePath, cv::IMREAD_UNCHANGED);
 
