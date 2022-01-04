@@ -17,11 +17,9 @@ void MouseCallback(int event, int x, int y, int flags, void *userdata) {
 Game::Game(CameraSystem& cameraSystem1,
            EntitySystem& entitySystem1,
            RenderSystem& renderSystem1)
-           : entitySystem(cameraSystem1, CameraSystem(0)), renderSystem(cameraSystem1, entitySystem1) { // TODO: WHAT???? why is this needed even when passing by ref?
-    cameraSystem = cameraSystem1;
-    entitySystem = entitySystem1;
-    renderSystem = renderSystem1;
-}
+           : cameraSystem(cameraSystem1),
+           entitySystem(entitySystem1),
+           renderSystem(renderSystem1) {}
 
 bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth, int cameraViewAngle) {
     cv::Mat imageBackground;

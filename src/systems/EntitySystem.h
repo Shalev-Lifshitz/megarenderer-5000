@@ -8,7 +8,7 @@
 
 class EntitySystem {
 private:
-    CameraSystem cameraSystem;
+    CameraSystem& cameraSystem;  // TODO: Should & be on first or second? Why does & make sense here?
     Positions positions;
     Orientations orientations;
     Scales scales;
@@ -19,7 +19,7 @@ public:
         SPHERE, CUBE, TORUS, PYRAMID
     };
 
-    explicit EntitySystem(CameraSystem& cameraSystem);
+    explicit EntitySystem(CameraSystem& cameraSystem1);
 
     void updateGame(int keycode);
 

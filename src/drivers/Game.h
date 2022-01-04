@@ -9,9 +9,9 @@
 
 class Game {
 private:
-    CameraSystem cameraSystem;
-    EntitySystem entitySystem;
-    RenderSystem renderSystem;
+    CameraSystem& cameraSystem;
+    EntitySystem& entitySystem;
+    RenderSystem& renderSystem;
 public:
     explicit Game(
             CameraSystem& cameraSystem1,

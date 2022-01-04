@@ -1,13 +1,7 @@
 #include "EntitySystem.h"
 
-EntitySystem::EntitySystem(CameraSystem& cameraSystem1) {
-    cameraSystem = cameraSystem1;
-    positions = Positions();
-    orientations = Orientations();
-    scales = Scales();
-    meshes = Meshes();
-    totalEntitiesAdded = 0;
-}
+EntitySystem::EntitySystem(CameraSystem& cameraSystem1)
+    : cameraSystem(cameraSystem1) {}
 
 void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
     // Obtain new entity ID
