@@ -17,6 +17,8 @@ public:
     glm::vec3 getCameraOrientation();
 
     int getCameraViewAngle();
+
+    void setCameraOrientation(const glm::vec2& mousePosition);
 };
 
 
