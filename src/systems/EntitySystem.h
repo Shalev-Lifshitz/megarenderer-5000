@@ -4,29 +4,34 @@
 #include <glm/glm.hpp> // vec2, vec3, mat4, radians
 #include <opencv2/opencv.hpp>
 #include "../entities/EntityComponents.h"
+#include "../systems/CameraSystem.h"
 
 class EntitySystem {
 private:
+    CameraSystem& cameraSystem;  // TODO: Should & be on first or second? Why does & make sense here?
     Positions positions;
     Orientations orientations;
+    Scales scales;
     Meshes meshes;
-    int64_t numEntities;
+    int64_t totalEntitiesAdded;
 public:
     enum Entity {
         SPHERE, CUBE, TORUS, PYRAMID
     };
 
-    EntitySystem();
+    explicit EntitySystem(CameraSystem& cameraSystem1);
 
     void updateGame(int keycode);
 
-    void addEntity(Entity entity);
+    void addEntity(Entity entity, glm::vec3 position);
 
     void removeEntity(EntityID id);
 
     Positions getPositions();
 
     Orientations getOrientations();
+
+    Scales getScales();
 
     Meshes getMeshes();
 };

@@ -8,10 +8,10 @@
 
 class RenderSystem {
 private:
-    EntitySystem entitySystem;
-    CameraSystem cameraSystem;
+    EntitySystem& entitySystem;
+    CameraSystem& cameraSystem;
 public:
-    RenderSystem(CameraSystem &cameraSystem, EntitySystem &entitySystem);
+    RenderSystem(EntitySystem& entitySystem1, CameraSystem& cameraSystem1);
 
     std::unique_ptr<cv::Mat> renderScene(cv::Mat& imageBackground);
 
