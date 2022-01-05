@@ -13,6 +13,6 @@ using ComponentMap = std::unordered_map<EntityID, Type>;
 using Positions = ComponentMap<glm::vec3>;
 using Orientations = ComponentMap<glm::vec3>;
 using Scales = ComponentMap<float>;
-using Meshes = ComponentMap<std::vector<glm::mat3x4>>; // Each vector has shape numTriangles x 3 x 4
+using Meshes = ComponentMap<std::vector<glm::mat3x3>>; // Each vector has shape numTriangles x 3 x 4
 
 #endif //PSR_3D_RENDERER_ENTITYCOMPONENTS_H

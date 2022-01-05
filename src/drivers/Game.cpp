@@ -3,15 +3,15 @@
 #include "Game.h"
 
 void MouseCallback(int event, int x, int y, int flags, void *userdata) {
-    if (event == cv::EVENT_LBUTTONDOWN) {
-        std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-    } else if (event == cv::EVENT_RBUTTONDOWN) {
-        std::cout << "Right button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-    } else if (event == cv::EVENT_MBUTTONDOWN) {
-        std::cout << "Middle button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-    } else if (event == cv::EVENT_MOUSEMOVE) {
-        std::cout << "Mouse move over the window - position (" << x << ", " << y << ")" << std::endl;
-    }
+//    if (event == cv::EVENT_LBUTTONDOWN) {
+//        std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
+//    } else if (event == cv::EVENT_RBUTTONDOWN) {
+//        std::cout << "Right button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
+//    } else if (event == cv::EVENT_MBUTTONDOWN) {
+//        std::cout << "Middle button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
+//    } else if (event == cv::EVENT_MOUSEMOVE) {
+//        std::cout << "Mouse move over the window - position (" << x << ", " << y << ")" << std::endl;
+//    }
 }
 
 Game::Game(CameraSystem& cameraSystem1,
@@ -43,8 +43,8 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
 
         cv::imshow("Display window", *image);
 
-        key = cv::waitKey(1000);
-        std::cout << "Key pressed: " << key << std::endl;
+        key = cv::waitKey(1);
+//        std::cout << "Key pressed: " << key << std::endl;
         // TODO: Need to use actual mouse position from MouseCallback, we need to figure that out.
         cameraSystem.updateCamera(key, glm::vec2(0, 0));
         entitySystem.updateGame(key);

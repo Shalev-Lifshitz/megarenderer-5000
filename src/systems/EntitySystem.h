@@ -15,10 +15,10 @@ private:
     Scales scales;
     Meshes meshes;
     int64_t totalEntitiesAdded;
-    std::vector<glm::mat3x4> MeshGenerator(std::string shape);
+    std::vector<glm::mat3x3> MeshGenerator(std::string shape);
 public:
     enum Entity {
-        SPHERE, CUBE, TORUS, PYRAMID
+        SPHERE, CUBE, TORUS, PYRAMID, AXES
     };
 
     explicit EntitySystem(CameraSystem& cameraSystem1);

@@ -8,8 +8,8 @@ int main(int argc, char **argv) {
     EntitySystem entitySystem(cameraSystem);
     RenderSystem renderSystem(entitySystem, cameraSystem);
 
-    int screenHeight = 1000;
-    int screenWidth = 1000;
+    int screenHeight = 800;
+    int screenWidth = 800;
     Game game(cameraSystem, entitySystem, renderSystem);
     bool success = game.runGameLoop(backgroundImagePath, screenHeight, screenWidth);
 

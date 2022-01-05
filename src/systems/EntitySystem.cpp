@@ -16,6 +16,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = MeshGenerator("sphere");
+            std::cout << "Finished." << std::endl;
             break;
         case CUBE:
             std::cout << "CUBE" << std::endl;
@@ -23,6 +24,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = MeshGenerator("cube");
+            std::cout << "Finished." << std::endl;
             break;
         case TORUS:
             std::cout << "TORUS" << std::endl;
@@ -30,13 +32,23 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = MeshGenerator("torus");
+            std::cout << "Finished." << std::endl;
             break;
         case PYRAMID:
             std::cout << "PYRAMID" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
-            meshes[id] = MeshGenerator("pyramid");;
+            meshes[id] = MeshGenerator("pyramid");
+            std::cout << "Finished." << std::endl;
+            break;
+        case AXES:
+            std::cout << "AXES" << std::endl;
+            positions[id] = position;
+            orientations[id] = -cameraSystem.getCameraOrientation();
+            scales[id] = 1;
+            meshes[id] = MeshGenerator("axes");
+            std::cout << "Finished." << std::endl;
             break;
     }
 }
@@ -77,9 +89,13 @@ void EntitySystem::updateGame(int keycode) {
         case 80: // 'P' - PYRAMID
             addEntity(PYRAMID, cameraSystem.getCameraPosition());
             break;
+        case 65: // 'A' - AXES
+            addEntity(AXES, cameraSystem.getCameraPosition());
+            break;
     }
 }
-std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
+
+std::vector<glm::mat3x3> EntitySystem::MeshGenerator(std::string shape){
     std::vector<float> coords, normals;
     std::vector<unsigned int> tris, solids;
     //TODO: Need to figure a way to make relative paths work
@@ -87,16 +103,16 @@ std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
     try {
         stl_reader::ReadStlFile(sh.c_str(), coords, normals, tris, solids);
         const size_t numTris = tris.size() / 3;
-        std::vector<glm::mat3x4> mesh;
+        std::vector<glm::mat3x3> mesh;
 
         for(size_t itri = 0; itri < numTris; ++itri) {
-            std::vector<glm::vec4> f;
+            std::vector<glm::vec3> f;
             for(size_t icorner = 0; icorner < 3; ++icorner) {
                 float* c = &coords[3 * tris [3 * itri + icorner]];
-                glm::vec4 a = glm::vec4(c[0], c[1], c[2], 1);
+                glm::vec3 a = glm::vec3(c[0], c[1], c[2]);
                 f.push_back(a);
             }
-            glm::mat3x4 triMatrix = glm::mat3x4(f[0], f[1], f[2]);
+            glm::mat3x3 triMatrix = glm::mat3x3(f[0], f[1], f[2]);
             mesh.push_back(triMatrix);
         }
         return mesh;
@@ -104,6 +120,4 @@ std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
     catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
-
 }
-
