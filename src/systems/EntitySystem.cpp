@@ -15,28 +15,28 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
-            meshes[id] = cv::Mat();
+            meshes[id] = MeshGenerator("sphere");
             break;
         case CUBE:
             std::cout << "CUBE" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
-            meshes[id] = cv::Mat();
+            meshes[id] = MeshGenerator("cube");
             break;
         case TORUS:
             std::cout << "TORUS" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
-            meshes[id] = cv::Mat();
+            meshes[id] = MeshGenerator("torus");
             break;
         case PYRAMID:
             std::cout << "PYRAMID" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
-            meshes[id] = cv::Mat();
+            meshes[id] = MeshGenerator("pyramid");;
             break;
     }
 }
@@ -79,3 +79,31 @@ void EntitySystem::updateGame(int keycode) {
             break;
     }
 }
+std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
+    std::vector<float> coords, normals;
+    std::vector<unsigned int> tris, solids;
+    //TODO: Need to figure a way to make relative paths work
+    std::string sh = "../../meshes/" + shape + ".stl"; // This line is not working yet
+    try {
+        stl_reader::ReadStlFile(sh.c_str(), coords, normals, tris, solids);
+        const size_t numTris = tris.size() / 3;
+        std::vector<glm::mat3x4> mesh;
+
+        for(size_t itri = 0; itri < numTris; ++itri) {
+            std::vector<glm::vec4> f;
+            for(size_t icorner = 0; icorner < 3; ++icorner) {
+                float* c = &coords[3 * tris [3 * itri + icorner]];
+                glm::vec4 a = glm::vec4(c[0], c[1], c[2], 1);
+                f.push_back(a);
+            }
+            glm::mat3x4 triMatrix = glm::mat3x4(f[0], f[1], f[2]);
+            mesh.push_back(triMatrix);
+        }
+        return mesh;
+    }
+    catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+
+}
+
