@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include "../entities/EntityComponents.h"
 #include "../systems/CameraSystem.h"
-#include "../library/stl_reader.h"
+#include "../external-libraries/stl_reader.h"
 
 class EntitySystem {
 private:

@@ -1,4 +1,5 @@
 #include "EntitySystem.h"
+#include "../external-libraries/stl_reader.h"
 
 EntitySystem::EntitySystem(CameraSystem& cameraSystem1)
     : cameraSystem(cameraSystem1) {}
