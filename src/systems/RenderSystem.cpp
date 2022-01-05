@@ -146,11 +146,8 @@ std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {
                          triProjected.p[2].x, triProjected.p[2].y,
                          0x0000);
         }
-
-
         return image;
     }
-
 }
 
 
