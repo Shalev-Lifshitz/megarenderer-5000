@@ -34,7 +34,6 @@ void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
 
     // TODO: Update camera orientation
     setCameraOrientation(mousePosition);
-
 }
 
 void CameraSystem::setCameraOrientation(const glm::vec2& mousePosition) {
