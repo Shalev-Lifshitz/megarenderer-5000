@@ -1,4 +1,6 @@
 #include <opencv2/opencv.hpp>
+#include <chrono>
+
 #include "glm/gtx/string_cast.hpp"
 #include "Game.h"
 
@@ -38,8 +40,11 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
 
     int key;
     std::unique_ptr<cv::Mat> image;
+    auto start = std::chrono::steady_clock::now();
     while (key != 27) {
-        image = renderSystem.renderScene(imageBackground);
+        auto end = std::chrono::steady_clock::now();
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        image = renderSystem.renderScene(imageBackground, elapsed_time/100);
 
         cv::imshow("Display window", *image);
 

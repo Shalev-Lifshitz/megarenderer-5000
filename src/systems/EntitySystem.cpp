@@ -8,6 +8,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
     // Obtain new entity ID
     totalEntitiesAdded++;
     EntityID id = totalEntitiesAdded;
+    EntitySystem::addEntityId(id);
 
     // TODO: Fill this with real code. Also, use builders?
     switch (entity) {
@@ -60,6 +61,10 @@ void EntitySystem::removeEntity(EntityID id) {
     meshes.erase(id);
 }
 
+void EntitySystem::addEntityId(int id){
+    entities.push_back(id);
+}
+
 Positions EntitySystem::getPositions() {
     return positions;
 }
@@ -100,7 +105,7 @@ std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
     std::vector<float> coords, normals;
     std::vector<unsigned int> tris, solids;
     //TODO: Need to figure a way to make relative paths work
-    std::string sh = "../../meshes/" + shape + ".stl"; // This line is not working yet
+    std::string sh = "/Users/maximus/Desktop/Projects/render-farm/psr-3d-renderer/meshes/" + shape + ".stl"; // This line is not working yet
     try {
         stl_reader::ReadStlFile(sh.c_str(), coords, normals, tris, solids);
         const size_t numTris = tris.size() / 3;

@@ -16,6 +16,7 @@ private:
     Meshes meshes;
     int64_t totalEntitiesAdded;
     std::vector<glm::mat3x4> MeshGenerator(std::string shape);
+    Entities entities; // TODO?
 public:
     enum Entity {
         SPHERE, CUBE, TORUS, PYRAMID, AXES
@@ -36,6 +37,8 @@ public:
     Scales getScales();
 
     Meshes getMeshes();
+
+    void addEntityId(int id); // TODO?
 };
 
 
