@@ -3,6 +3,18 @@
 #include <utility>
 #include <type_traits>
 
+void RenderSystem::MatrixVectorMultiplier(glm::vec3 &i, glm::vec3 &o, glm::mat4x4 &m) {
+    o.x = i.x * m[0][0] + i.y * m[1][0] + i.z * m[2][0] + m[3][0];
+    o.y = i.x * m[0][1] + i.y * m[1][1] + i.z * m[2][1] + m[3][1];
+    o.z = i.x * m[0][2] + i.y * m[1][2] + i.z * m[2][2] + m[3][2];
+    float w = i.x * m[0][3] + i.y * m[1][3] + i.z * m[2][3] + m[3][3];
+
+    if (w != 0.0f)
+    {
+        o.x/= w; o.y/= w; o.z/= w;
+    }
+};
+
 void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour){
     if (imageBackground != nullptr){
         cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
@@ -27,64 +39,29 @@ RenderSystem::RenderSystem(EntitySystem& entitySystem1, CameraSystem& cameraSyst
 std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat& imageBackground) {
     std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
 
-//    for(int i = 0; (i = entitySystem.getMeshes().size()); i++) {
-//
-//        entitySystem.getMeshes().at(i);
-//    }
-    //TODO
-    return renderCube(imageBackground);
-}
-
-std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {
-    std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
-
     auto screenHeight = 800;
     auto screenWidth = 800;
 
-    meshCube.tris = {
+    for(auto const &pair: entitySystem.getMeshes()) {
+        std::vector<glm::mat3x3> mesh = pair.second;
 
-            //South
-            {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f)},
-            {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-            //East
-            {glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
-            {glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f)},
+        //Projection Matrix
+        float fNear = 0.1f;
+        float fFar = 1000.0f;
+        float fFov = 90.0f;
+        float fAspectRatio = (float) screenHeight / (float) screenWidth;
+        float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
 
-            //North
-            {glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 1.0f)},
-            {glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+        matProj[0][0] = fAspectRatio * fFovRad;
+        matProj[0][1] = 0.0f;
+        matProj[1][1] = fFovRad;
+        matProj[1][0] = 0.0f;
+        matProj[2][1] = 0.0f;
+        matProj[2][2] = fFar / (fFar - fNear);
+        matProj[3][2] = (-fFar * fNear) / (fFar - fNear);
+        matProj[2][3] = 1.0f;
+        matProj[3][3] = 0.0f;
 
-            //West
-            {glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-            {glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
-
-            //Top
-            {glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
-            {glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
-
-            //Bottom
-            {glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
-            {glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
-    };
-
-    //Projection Matrix
-    float fNear = 0.1f;
-    float fFar = 1000.0f;
-    float fFov = 90.0f;
-    float fAspectRatio = (float) screenHeight / (float) screenWidth;
-    float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
-
-    matProj[0][0] = fAspectRatio * fFovRad;
-    matProj[0][1] = 0.0f;
-    matProj[1][1] = fFovRad;
-    matProj[1][0] = 0.0f;
-    matProj[2][1] = 0.0f;
-    matProj[2][2] = fFar / (fFar - fNear);
-    matProj[3][2] = (-fFar * fNear) / (fFar - fNear);
-    matProj[2][3] = 1.0f;
-    matProj[3][3] = 0.0f;
-
-    for (auto tri: meshCube.tris) {
         glm::mat4x4 matRotZ, matRotX;
         auto fTheta = 1.0f * 150.5f;
 
@@ -101,59 +78,47 @@ std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {
         matRotX[1][1] = cosf(fTheta * 0.5f);
         matRotX[1][2] = sinf(fTheta * 0.5f);
         matRotX[2][1] = -sinf(fTheta * 0.5f);
-        matRotX[2][2] = cosf(fTheta * 0.5f);;
+        matRotX[2][2] = cosf(fTheta * 0.5f);
         matRotX[3][3] = 1;
 
 
         //Draw triangles
-        for (auto tri: meshCube.tris) {
-            triangle triProjected, triTranslated;
+        for (glm::mat3x3 tri: mesh) {
+            glm::mat3x3 triProjected, triTranslated;
 
-//            auto const transform = matRotZ * matRotX;
-
+            // Compute translated triangle (in game world coordinates)
             triTranslated = tri;
-            triTranslated.p[0].z = tri.p[0].z + 3.0f + cameraSystem.getCameraPosition().z;
-            triTranslated.p[1].z = tri.p[1].z + 3.0f + cameraSystem.getCameraPosition().z;
-            triTranslated.p[2].z = tri.p[2].z + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated[0][2] = tri[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated[1][2] = tri[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated[2][2] = tri[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
 
-            MatrixVectorMultiplyer(triTranslated.p[0], triProjected.p[0], matProj);
-            MatrixVectorMultiplyer(triTranslated.p[1], triProjected.p[1], matProj);
-            MatrixVectorMultiplyer(triTranslated.p[2], triProjected.p[2], matProj);
+            MatrixVectorMultiplier(triTranslated[0], triProjected[0], matProj);
+            MatrixVectorMultiplier(triTranslated[1], triProjected[1], matProj);
+            MatrixVectorMultiplier(triTranslated[2], triProjected[2], matProj);
 
             //scale into view
-            triProjected.p[0].x += cameraSystem.getCameraPosition().x;
-            triProjected.p[0].y += cameraSystem.getCameraPosition().x;
-            triProjected.p[1].x += cameraSystem.getCameraPosition().x;
-            triProjected.p[1].y += cameraSystem.getCameraPosition().x;
-            triProjected.p[2].x += cameraSystem.getCameraPosition().x;
-            triProjected.p[2].y += cameraSystem.getCameraPosition().x;
+            triProjected[0][0] += cameraSystem.getCameraPosition().x;
+            triProjected[0][1] += cameraSystem.getCameraPosition().x;
+            triProjected[1][0] += cameraSystem.getCameraPosition().x;
+            triProjected[1][1] += cameraSystem.getCameraPosition().x;
+            triProjected[2][0] += cameraSystem.getCameraPosition().x;
+            triProjected[2][1] += cameraSystem.getCameraPosition().x;
 
-            triProjected.p[0].x *= 0.5f * (float) screenWidth;
-            triProjected.p[0].y *= 0.5f * (float) screenHeight;
-            triProjected.p[1].x *= 0.5f * (float) screenWidth;
-            triProjected.p[1].y *= 0.5f * (float) screenHeight;
-            triProjected.p[2].x *= 0.5f * (float) screenWidth;
-            triProjected.p[2].y *= 0.5f * (float) screenHeight;
+            triProjected[0][0] *= 0.5f * (float) screenWidth;
+            triProjected[0][1] *= 0.5f * (float) screenHeight;
+            triProjected[1][0] *= 0.5f * (float) screenWidth;
+            triProjected[1][1] *= 0.5f * (float) screenHeight;
+            triProjected[2][0] *= 0.5f * (float) screenWidth;
+            triProjected[2][1] *= 0.5f * (float) screenHeight;
 
-            DrawTriangle(image, triProjected.p[0].x, triProjected.p[0].y,
-                         triProjected.p[1].x, triProjected.p[1].y,
-                         triProjected.p[2].x, triProjected.p[2].y,
+            DrawTriangle(image, triProjected[0][0], triProjected[0][1],
+                         triProjected[1][0], triProjected[1][1],
+                         triProjected[2][0], triProjected[2][1],
                          0x0000);
         }
-        return image;
     }
+    return image;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 //template<typename P>
 //void triangle_rasterizer(const P* p0, const P* p1, const P* p2){
