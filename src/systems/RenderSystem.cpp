@@ -5,7 +5,7 @@
 
 void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour){
     if (imageBackground != nullptr){
-        cv::line(*imageBackground, {400, 400}, {300, 300}, colour);
+        cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
     } else {
         std::cout << "Pointer to image is a null pointer!" << std::endl;
     }
@@ -31,11 +31,8 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat& imageBackground) {
 //
 //        entitySystem.getMeshes().at(i);
 //    }
-
-    renderCube(imageBackground);
-
     //TODO
-    return image;
+    return renderCube(imageBackground);
 }
 
 std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {

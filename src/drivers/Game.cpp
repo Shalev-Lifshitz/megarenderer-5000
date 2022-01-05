@@ -37,8 +37,9 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
     cv::setMouseCallback("Display window", MouseCallback, NULL); // TODO: how can we get mousePosition from this
 
     int key;
+    std::unique_ptr<cv::Mat> image;
     while (key != 27) {
-        std::unique_ptr<cv::Mat> image = renderSystem.renderScene(imageBackground);
+        image = renderSystem.renderScene(imageBackground);
 
         cv::imshow("Display window", *image);
 
