@@ -2,8 +2,9 @@
 #include <tuple>
 #include <utility>
 #include <type_traits>
+#include "glm/gtx/string_cast.hpp"
 
-void RenderSystem::MatrixVectorMultiplier(glm::vec3 &i, glm::vec3 &o, glm::mat4x4 &m) {
+void RenderSystem::MatrixVectorMultiplier(glm::vec4 &i, glm::vec4 &o, glm::mat4x4 &m) {
     o.x = i.x * m[0][0] + i.y * m[1][0] + i.z * m[2][0] + m[3][0];
     o.y = i.x * m[0][1] + i.y * m[1][1] + i.z * m[2][1] + m[3][1];
     o.z = i.x * m[0][2] + i.y * m[1][2] + i.z * m[2][2] + m[3][2];
@@ -43,7 +44,9 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat& imageBackground) {
     auto screenWidth = 800;
 
     for(auto const &pair: entitySystem.getMeshes()) {
-        std::vector<glm::mat3x3> mesh = pair.second;
+        std::vector<glm::mat3x4> mesh = pair.second;
+        glm::vec3 position3 = entitySystem.getPositions().at(pair.first);
+        glm::vec4 position4 = glm::vec4(position3.x, position3.y, position3.z, 0);
 
         //Projection Matrix
         float fNear = 0.1f;
@@ -83,18 +86,30 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat& imageBackground) {
 
 
         //Draw triangles
-        for (glm::mat3x3 tri: mesh) {
-            glm::mat3x3 triProjected, triTranslated;
+        for (glm::mat3x4 tri: mesh) {
+            glm::mat3x4 triTranslated;
+//            triTranslated[0] = tri[0] + position4;
+//            triTranslated[1] = tri[1] + position4;
+//            triTranslated[2] = tri[2] + position4;
 
-            // Compute translated triangle (in game world coordinates)
-            triTranslated = tri;
             triTranslated[0][2] = tri[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
             triTranslated[1][2] = tri[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
             triTranslated[2][2] = tri[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
 
-            MatrixVectorMultiplier(triTranslated[0], triProjected[0], matProj);
-            MatrixVectorMultiplier(triTranslated[1], triProjected[1], matProj);
-            MatrixVectorMultiplier(triTranslated[2], triProjected[2], matProj);
+            glm::mat3x4 triProjected = matProj * triTranslated;
+
+            glm::mat3x4 triProjected1;
+            MatrixVectorMultiplier(triTranslated[0], triProjected1[0], matProj);
+            MatrixVectorMultiplier(triTranslated[1], triProjected1[1], matProj);
+            MatrixVectorMultiplier(triTranslated[2], triProjected1[2], matProj);
+
+            bool a = triProjected1 == triProjected;
+
+
+//            std::cout << glm::to_string(triTranslated) << std::endl;
+//            std::cout << glm::to_string(matProj) << std::endl;
+//            std::cout << glm::to_string(triProjected) << std::endl;
+//            std::cout << glm::to_string(triProjected1) << std::endl;
 
             //scale into view
             triProjected[0][0] += cameraSystem.getCameraPosition().x;
@@ -116,7 +131,15 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat& imageBackground) {
                          triProjected[2][0], triProjected[2][1],
                          0x0000);
         }
+//        std:: cout << std::endl;
+//        std:: cout << std::endl;
+//        std:: cout << std::endl;
     }
+//    std:: cout << std::endl;
+//    std:: cout << std::endl;
+//    std:: cout << std::endl;
+//    std:: cout << std::endl;
+
     return image;
 }
 

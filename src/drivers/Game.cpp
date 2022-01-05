@@ -1,5 +1,5 @@
 #include <opencv2/opencv.hpp>
-
+#include "glm/gtx/string_cast.hpp"
 #include "Game.h"
 
 void MouseCallback(int event, int x, int y, int flags, void *userdata) {
@@ -48,6 +48,11 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
         // TODO: Need to use actual mouse position from MouseCallback, we need to figure that out.
         cameraSystem.updateCamera(key, glm::vec2(0, 0));
         entitySystem.updateGame(key);
+//        std::cout
+//            << glm::to_string(cameraSystem.getCameraPosition())
+//            << " "
+//            << glm::to_string(cameraSystem.getCameraOrientation())
+//            << std::endl;
     }
 
     return true;

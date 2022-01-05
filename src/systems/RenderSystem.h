@@ -17,7 +17,7 @@ public:
 private:
     glm::mat4x4 matProj;
 
-    void MatrixVectorMultiplier(glm::vec3 &i, glm::vec3 &o, glm::mat4x4 &m);
+    void MatrixVectorMultiplier(glm::vec4 &i, glm::vec4 &o, glm::mat4x4 &m);
 };
 
 #endif //PSR_3D_RENDERER_RENDERSYSTEM_H
