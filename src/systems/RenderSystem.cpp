@@ -112,21 +112,21 @@ std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {
 //            auto const transform = matRotZ * matRotX;
 
             triTranslated = tri;
-            triTranslated.p[0].z = tri.p[0].z + 3.0f;
-            triTranslated.p[1].z = tri.p[1].z + 3.0f;
-            triTranslated.p[2].z = tri.p[2].z + 3.0f;
+            triTranslated.p[0].z = tri.p[0].z + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated.p[1].z = tri.p[1].z + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated.p[2].z = tri.p[2].z + 3.0f + cameraSystem.getCameraPosition().z;
 
             MatrixVectorMultiplyer(triTranslated.p[0], triProjected.p[0], matProj);
             MatrixVectorMultiplyer(triTranslated.p[1], triProjected.p[1], matProj);
             MatrixVectorMultiplyer(triTranslated.p[2], triProjected.p[2], matProj);
 
             //scale into view
-            triProjected.p[0].x += cameraSystem.getCameraOrientation().x;
-            triProjected.p[0].y += cameraSystem.getCameraOrientation().y;
-            triProjected.p[1].x += cameraSystem.getCameraOrientation().x;
-            triProjected.p[1].y += cameraSystem.getCameraOrientation().y;
-            triProjected.p[2].x += cameraSystem.getCameraOrientation().x;
-            triProjected.p[2].y += cameraSystem.getCameraOrientation().y;
+            triProjected.p[0].x += cameraSystem.getCameraPosition().x;
+            triProjected.p[0].y += cameraSystem.getCameraPosition().x;
+            triProjected.p[1].x += cameraSystem.getCameraPosition().x;
+            triProjected.p[1].y += cameraSystem.getCameraPosition().x;
+            triProjected.p[2].x += cameraSystem.getCameraPosition().x;
+            triProjected.p[2].y += cameraSystem.getCameraPosition().x;
 
             triProjected.p[0].x *= 0.5f * (float) screenWidth;
             triProjected.p[0].y *= 0.5f * (float) screenHeight;
