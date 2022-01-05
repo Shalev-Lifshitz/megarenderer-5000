@@ -16,6 +16,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = MeshGenerator("sphere");
+            std::cout << "Finished." << std::endl;
             break;
         case CUBE:
             std::cout << "CUBE" << std::endl;
@@ -23,6 +24,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = MeshGenerator("cube");
+            std::cout << "Finished." << std::endl;
             break;
         case TORUS:
             std::cout << "TORUS" << std::endl;
@@ -30,13 +32,15 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
             meshes[id] = MeshGenerator("torus");
+            std::cout << "Finished." << std::endl;
             break;
         case PYRAMID:
             std::cout << "PYRAMID" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
-            meshes[id] = MeshGenerator("pyramid");;
+            meshes[id] = MeshGenerator("pyramid");
+            std::cout << "Finished." << std::endl;
             break;
     }
 }
