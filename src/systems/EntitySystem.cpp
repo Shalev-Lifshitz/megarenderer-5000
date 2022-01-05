@@ -83,6 +83,7 @@ void EntitySystem::updateGame(int keycode) {
             break;
     }
 }
+
 std::vector<glm::mat3x3> EntitySystem::MeshGenerator(std::string shape){
     std::vector<float> coords, normals;
     std::vector<unsigned int> tris, solids;
@@ -108,6 +109,4 @@ std::vector<glm::mat3x3> EntitySystem::MeshGenerator(std::string shape){
     catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
-
 }
-
