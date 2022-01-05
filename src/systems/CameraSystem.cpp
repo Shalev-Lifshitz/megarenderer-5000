@@ -1,9 +1,8 @@
 #include <iostream>
 #include "CameraSystem.h"
 
-CameraSystem::CameraSystem() {
-    camera = Camera();
-}
+CameraSystem::CameraSystem(int cameraViewAngle)
+    : camera(cameraViewAngle) {}
 
 void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
     // Determine how to update camera position based on key pressed
@@ -34,12 +33,10 @@ void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
     camera.setPosition(newCameraPosition);
 
     // TODO: Update camera orientation
-    updateCameraOrientation(mousePosition);
-
+    setCameraOrientation(mousePosition);
 }
 
-void CameraSystem::updateCameraOrientation(const glm::vec2 &mousePosition) const {
-
+void CameraSystem::setCameraOrientation(const glm::vec2& mousePosition) {
     // adding constants to change later (might be picture specific currently?)
     float xScreenMidpoint = 500;
     float yScreenMidpoint = 327.5;
@@ -54,8 +51,8 @@ void CameraSystem::updateCameraOrientation(const glm::vec2 &mousePosition) const
     } else {
         // we want to move the orientation
         // calculate norm of vector with origin at screen midpoint
-        float xDist = abs(mousePosition[0] - xScreenMidpoint);
-        float yDist = abs(mousePosition[1] - yScreenMidpoint);
+        float xDist = std::abs(mousePosition[0] - xScreenMidpoint);
+        float yDist = std::abs(mousePosition[1] - yScreenMidpoint);
         std::cout << "ORIENTATION UPDATED BY (" << xDist << ", " << yDist <<")";
     }
 }
@@ -66,4 +63,8 @@ glm::vec3 CameraSystem::getCameraPosition() {
 
 glm::vec3 CameraSystem::getCameraOrientation() {
     return camera.getOrientation();
+}
+
+int CameraSystem::getCameraViewAngle() {
+    return camera.getCameraViewAngle();
 }

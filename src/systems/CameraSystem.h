@@ -8,7 +8,7 @@ class CameraSystem {
 private:
     Camera camera;
 public:
-    CameraSystem();
+    explicit CameraSystem(int cameraViewAngle);
 
     void updateCamera(int keycode, glm::vec2 mousePosition);
 
@@ -16,7 +16,9 @@ public:
 
     glm::vec3 getCameraOrientation();
 
-    void updateCameraOrientation(const glm::vec2 &mousePosition) const;
+    int getCameraViewAngle();
+
+    void setCameraOrientation(const glm::vec2& mousePosition);
 };
 
 
