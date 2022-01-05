@@ -38,15 +38,14 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat& imageBackground) {
 std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {
     std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
 
-    auto screenHeight = image->rows;
-    auto screenWidth = image->cols;
+    auto screenHeight = 800;
+    auto screenWidth = 800;
 
     meshCube.tris = {
 
             //South
             {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f)},
             {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-
             //East
             {glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
             {glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f)},
@@ -76,7 +75,10 @@ std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {
     float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
 
     matProj[0][0] = fAspectRatio * fFovRad;
+    matProj[0][1] = 0.0f;
     matProj[1][1] = fFovRad;
+    matProj[1][0] = 0.0f;
+    matProj[2][1] = 0.0f;
     matProj[2][2] = fFar / (fFar - fNear);
     matProj[3][2] = (-fFar * fNear) / (fFar - fNear);
     matProj[2][3] = 1.0f;
@@ -105,34 +107,26 @@ std::unique_ptr<cv::Mat> RenderSystem::renderCube(cv::Mat& imageBackground) {
 
         //Draw triangles
         for (auto tri: meshCube.tris) {
-            triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
-
-            MatrixVectorMultiplyer(tri.p[0], triRotatedZ.p[0], matRotZ);
-            MatrixVectorMultiplyer(tri.p[1], triRotatedZ.p[1], matRotZ);
-            MatrixVectorMultiplyer(tri.p[2], triRotatedZ.p[2], matRotZ);
-
-            MatrixVectorMultiplyer(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
-            MatrixVectorMultiplyer(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
-            MatrixVectorMultiplyer(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
+            triangle triProjected, triTranslated;
 
 //            auto const transform = matRotZ * matRotX;
 
-            triTranslated = triRotatedZX;
-            triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
-            triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
-            triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+            triTranslated = tri;
+            triTranslated.p[0].z = tri.p[0].z + 3.0f;
+            triTranslated.p[1].z = tri.p[1].z + 3.0f;
+            triTranslated.p[2].z = tri.p[2].z + 3.0f;
 
             MatrixVectorMultiplyer(triTranslated.p[0], triProjected.p[0], matProj);
             MatrixVectorMultiplyer(triTranslated.p[1], triProjected.p[1], matProj);
             MatrixVectorMultiplyer(triTranslated.p[2], triProjected.p[2], matProj);
 
             //scale into view
-            triProjected.p[0].x += 1.0f;
-            triProjected.p[0].y += 1.0f;
-            triProjected.p[1].x += 1.0f;
-            triProjected.p[1].y += 1.0f;
-            triProjected.p[2].x += 1.0f;
-            triProjected.p[2].y += 1.0f;
+            triProjected.p[0].x += cameraSystem.getCameraOrientation().x;
+            triProjected.p[0].y += cameraSystem.getCameraOrientation().y;
+            triProjected.p[1].x += cameraSystem.getCameraOrientation().x;
+            triProjected.p[1].y += cameraSystem.getCameraOrientation().y;
+            triProjected.p[2].x += cameraSystem.getCameraOrientation().x;
+            triProjected.p[2].y += cameraSystem.getCameraOrientation().y;
 
             triProjected.p[0].x *= 0.5f * (float) screenWidth;
             triProjected.p[0].y *= 0.5f * (float) screenHeight;

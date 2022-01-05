@@ -3,7 +3,6 @@
 
 int main(int argc, char **argv) {
     std::string backgroundImagePath = "../images/gradient.jpeg";
-
     int cameraViewAngle = 90;
     CameraSystem cameraSystem(cameraViewAngle);
     EntitySystem entitySystem(cameraSystem);
