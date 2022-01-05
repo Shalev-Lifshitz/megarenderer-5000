@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include "../entities/EntityComponents.h"
 #include "../systems/CameraSystem.h"
+#include "../library/stl_reader.h"
 
 class EntitySystem {
 private:
@@ -14,6 +15,7 @@ private:
     Scales scales;
     Meshes meshes;
     int64_t totalEntitiesAdded;
+    std::vector<glm::mat3x4> MeshGenerator(std::string shape);
 public:
     enum Entity {
         SPHERE, CUBE, TORUS, PYRAMID
