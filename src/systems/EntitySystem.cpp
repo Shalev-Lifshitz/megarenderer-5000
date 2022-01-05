@@ -42,6 +42,14 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             meshes[id] = MeshGenerator("pyramid");
             std::cout << "Finished." << std::endl;
             break;
+        case AXES:
+            std::cout << "AXES" << std::endl;
+            positions[id] = position;
+            orientations[id] = -cameraSystem.getCameraOrientation();
+            scales[id] = 1;
+            meshes[id] = MeshGenerator("axes");
+            std::cout << "Finished." << std::endl;
+            break;
     }
 }
 
@@ -80,6 +88,9 @@ void EntitySystem::updateGame(int keycode) {
             break;
         case 80: // 'P' - PYRAMID
             addEntity(PYRAMID, cameraSystem.getCameraPosition());
+            break;
+        case 65: // 'A' - AXES
+            addEntity(AXES, cameraSystem.getCameraPosition());
             break;
     }
 }
