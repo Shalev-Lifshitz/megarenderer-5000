@@ -1,5 +1,6 @@
 #include <iostream>
 #include "CameraSystem.h"
+#include "glm/gtx/string_cast.hpp"
 
 CameraSystem::CameraSystem(int cameraViewAngle)
     : camera(cameraViewAngle) {}
@@ -7,23 +8,25 @@ CameraSystem::CameraSystem(int cameraViewAngle)
 void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
     // Determine how to update camera position based on key pressed
     bool updatedPosition = false;
-    float mult = 0.01;
+    float mult = 0.05;
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
     glm::vec3 positionUpdate;
     switch (keycode) {
         case 119: // 'w' - FORWARD
-            positionUpdate = glm::vec3(0, 0, -1);
+            positionUpdate = mult * cameraFront;
             updatedPosition = true;
             break;
         case 115: // 's' - BACKWARD
-            positionUpdate = glm::vec3(0, 0, 1);
+            positionUpdate = -mult * cameraFront;
             updatedPosition = true;
             break;
         case 97: // 'a' - LEFT
-            positionUpdate = glm::vec3(1 * mult, 0, 0);
+            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * -mult;;
             updatedPosition = true;
             break;
         case 100: // 'd' - RIGHT
-            positionUpdate = glm::vec3(-1 * mult, 0, 0);
+            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * mult;
             updatedPosition = true;
             break;
         case 32: // 'SPACE' - UP

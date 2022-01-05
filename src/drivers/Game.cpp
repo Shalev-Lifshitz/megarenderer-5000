@@ -1,4 +1,5 @@
 #include <opencv2/opencv.hpp>
+#include <chrono>
 
 #include "Game.h"
 
@@ -38,13 +39,16 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
 
     int key;
     std::unique_ptr<cv::Mat> image;
+    auto start = std::chrono::steady_clock::now();
     while (key != 27) {
-        image = renderSystem.renderScene(imageBackground);
+        auto end = std::chrono::steady_clock::now();
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        image = renderSystem.renderScene(imageBackground, elapsed_time/100);
 
         cv::imshow("Display window", *image);
 
-        key = cv::waitKey(1);
-//        std::cout << "Key pressed: " << key << std::endl;
+        key = cv::waitKey(100);
+        std::cout << "Key    pressed: " << key << std::endl;
         // TODO: Need to use actual mouse position from MouseCallback, we need to figure that out.
         cameraSystem.updateCamera(key, glm::vec2(0, 0));
         entitySystem.updateGame(key);

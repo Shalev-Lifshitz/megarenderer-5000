@@ -13,7 +13,7 @@ private:
 public:
     RenderSystem(EntitySystem& entitySystem1, CameraSystem& cameraSystem1);
 
-    std::unique_ptr<cv::Mat> renderScene(cv::Mat& imageBackground);
+    std::unique_ptr<cv::Mat> renderScene(cv::Mat &imageBackground, long long int i);
 private:
     glm::mat4x4 matProj;
 
