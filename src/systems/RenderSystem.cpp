@@ -159,10 +159,20 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
             MatrixVectorMultiplier(tri[2], triScale[2], matScale);
 
             // Compute translated triangle (in game world coordinates)
+//            triTranslated = triScale;
+//            triTranslated[0][2] = triScale[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
+//            triTranslated[1][2] = triScale[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
+//            triTranslated[2][2] = triScale[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
+
             triTranslated = triScale;
-            triTranslated[0][2] = triScale[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
-            triTranslated[1][2] = triScale[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
-            triTranslated[2][2] = triScale[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated[0][2] = tri[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated[1][2] = tri[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
+            triTranslated[2][2] = tri[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
+
+
+            triTranslated[0][2] += entitySystem.getPositions().at(id).z;
+            triTranslated[1][2] += entitySystem.getPositions().at(id).z;
+            triTranslated[2][2] += entitySystem.getPositions().at(id).z;
 
 //            MatrixVectorMultiplier(triScale[0], triRotatedZ[0], matRotZ);
 //            MatrixVectorMultiplier(triScale[1], triRotatedZ[1], matRotZ);
@@ -199,6 +209,13 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
             triProjected[1][1] += cameraSystem.getCameraPosition().y + 1.0f;
             triProjected[2][0] += cameraSystem.getCameraPosition().x + 1.0f;
             triProjected[2][1] += cameraSystem.getCameraPosition().y + 1.0f;
+
+            triProjected[0][0] += entitySystem.getPositions().at(id).x;
+            triProjected[0][1] += entitySystem.getPositions().at(id).y;
+            triProjected[1][0] += entitySystem.getPositions().at(id).x;
+            triProjected[1][1] += entitySystem.getPositions().at(id).y;
+            triProjected[2][0] += entitySystem.getPositions().at(id).x;
+            triProjected[2][1] += entitySystem.getPositions().at(id).y;
 
             triProjected[0][0] *= 0.5f * (float) screenWidth;
             triProjected[0][1] *= 0.5f * (float) screenHeight;
