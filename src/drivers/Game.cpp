@@ -16,12 +16,12 @@ void MouseCallback(int event, int x, int y, int flags, void *userdata) {
 //    }
 }
 
-Game::Game(CameraSystem& cameraSystem1,
-           EntitySystem& entitySystem1,
-           RenderSystem& renderSystem1)
-           : cameraSystem(cameraSystem1),
-           entitySystem(entitySystem1),
-           renderSystem(renderSystem1) {}
+Game::Game(CameraSystem &cameraSystem1,
+           EntitySystem &entitySystem1,
+           RenderSystem &renderSystem1)
+        : cameraSystem(cameraSystem1),
+          entitySystem(entitySystem1),
+          renderSystem(renderSystem1) {}
 
 bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth) {
     cv::Mat imageBackground;
@@ -44,7 +44,7 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
     while (key != 27) {
         auto end = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-        image = renderSystem.renderScene(imageBackground, elapsed_time/100);
+        image = renderSystem.renderScene(imageBackground, elapsed_time / 100);
 
         cv::imshow("Display window", *image);
 

@@ -8,25 +8,31 @@
 
 class RenderSystem {
 private:
-    EntitySystem& entitySystem;
-    CameraSystem& cameraSystem;
+    EntitySystem &entitySystem;
+    CameraSystem &cameraSystem;
     int screenHeight;
     int screenWidth;
 
     glm::mat4x4 getModelToWorldMatrix(glm::vec3 meshPosition);
 
     glm::mat4x4 getCameraRotationMatrix(float thetaX, float thetaY, float thetaZ);
+
     glm::mat4x4 getRotationMatrixAroundX(float theta);
+
     glm::mat4x4 getRotationMatrixAroundY(float theta);
+
     glm::mat4x4 getRotationMatrixAroundZ(float theta);
 
     glm::mat3x4 performProjection(glm::mat4x4 matProjection, glm::mat3x4 tri);
-    glm::mat4x4 getProjectionMatrix() ;
+
+    glm::mat4x4 getProjectionMatrix();
+
     glm::mat4x4 getScalingMatrix(glm::vec3 scaleVector);
+
 public:
     RenderSystem(
-            EntitySystem& entitySystem1,
-            CameraSystem& cameraSystem1,
+            EntitySystem &entitySystem1,
+            CameraSystem &cameraSystem1,
             int screenHeight1,
             int screenWidth1);
 

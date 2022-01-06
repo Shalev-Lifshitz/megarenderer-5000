@@ -1,8 +1,8 @@
 #include "EntitySystem.h"
 #include "../external-libraries/stl_reader.h"
 
-EntitySystem::EntitySystem(CameraSystem& cameraSystem1)
-    : cameraSystem(cameraSystem1) {}
+EntitySystem::EntitySystem(CameraSystem &cameraSystem1)
+        : cameraSystem(cameraSystem1) {}
 
 void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
     // Obtain new entity ID

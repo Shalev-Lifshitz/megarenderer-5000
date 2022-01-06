@@ -11,7 +11,8 @@ void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1,
     }
 };
 
-void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
+void
+DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
     DrawLine(imageBackground, x0, y0, x1, y1, colour);
     DrawLine(imageBackground, x1, y1, x2, y2, colour);
     DrawLine(imageBackground, x2, y2, x0, y0, colour);
@@ -22,10 +23,8 @@ RenderSystem::RenderSystem(
         CameraSystem &cameraSystem1,
         int screenHeight1,
         int screenWidth1)
-        : cameraSystem(cameraSystem1)
-        , entitySystem(entitySystem1)
-        , screenHeight(screenHeight1)
-        , screenWidth(screenWidth1) {}
+        : cameraSystem(cameraSystem1), entitySystem(entitySystem1), screenHeight(screenHeight1),
+          screenWidth(screenWidth1) {}
 
 std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, long long int elapsed_time) {
     std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
@@ -88,9 +87,9 @@ glm::mat4x4 RenderSystem::getProjectionMatrix() {
     glm::mat4x4 mat(0);
     mat[0][0] = 1 / tan(fovX / 2);
     mat[1][1] = 1 / tan(fovY / 2);
-    mat[2][2] = - ((zFar + zNear) / (zFar - zNear));
+    mat[2][2] = -((zFar + zNear) / (zFar - zNear));
     mat[2][3] = -1;
-    mat[3][2] = - ((2 * zNear * zFar) / (zFar - zNear));
+    mat[3][2] = -((2 * zNear * zFar) / (zFar - zNear));
 
     // MOGTABA VERSION:
 //    float fNear = 0.1f;
