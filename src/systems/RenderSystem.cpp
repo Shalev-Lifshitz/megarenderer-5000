@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext.hpp>
 
+
 void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour) {
     if (imageBackground != nullptr) {
         cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
@@ -49,9 +50,11 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
             // Order of operations:
             // PerspectiveProjection * CameraRotation * ModelToWorld * Scaling
 
+            glm::mat3x4 triTranslated = adjustPositionZ(tri, meshPosition, cameraSystem.getCameraPosition());
             glm::mat4x4 matBeforeProjection = matCameraRotation * matModelToWorld * matScaling;
-            glm::mat3x4 triBeforeProjection = matBeforeProjection * tri;
-            glm::mat3x4 triProjected = performProjection(matProjection, triBeforeProjection);
+            glm::mat3x4 triBeforeProjection = matBeforeProjection * triTranslated;
+            glm::mat3x4 triPreProjected = performProjection(matProjection, triBeforeProjection);
+            glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, meshPosition, cameraSystem.getCameraPosition());
 
             DrawTriangle(image,
                          triProjected[0][0], triProjected[0][1],
@@ -91,30 +94,6 @@ glm::mat4x4 RenderSystem::getProjectionMatrix() {
     mat[2][3] = -1;
     mat[3][2] = -((2 * zNear * zFar) / (zFar - zNear));
 
-    // MOGTABA VERSION:
-//    float fNear = 0.1f;
-//    float fFar = 1000.0f;
-//    float fFov = 90.0f;
-//    float fAspectRatio = (float) screenHeight / (float) screenWidth;
-//    float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
-//
-//    glm::mat4x4 mat;
-//    mat[0][0] = fAspectRatio * fFovRad;
-//    mat[0][1] = 0;
-//    mat[0][2] = 0;
-//    mat[0][3] = 0;
-//    mat[1][1] = fFovRad;
-//    mat[1][0] = 0;
-//    mat[1][2] = 0;
-//    mat[1][3] = 0;
-//    mat[2][0] = 0;
-//    mat[2][1] = 0;
-//    mat[2][2] = zFar / (zFar - zNear);
-//    mat[2][3] = 1;
-//    mat[3][0] = 0;
-//    mat[3][1] = 0;
-//    mat[3][2] = (-zFar * zNear) / (zFar - zNear);
-//    mat[3][3] = 0;
     return mat;
 }
 
@@ -163,4 +142,49 @@ glm::mat4x4 RenderSystem::getScalingMatrix(glm::vec3 scaleVector) {
     mat[1][1] = scaleVector.y;
     mat[2][2] = scaleVector.z;
     return mat;
+}
+
+glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
+
+    glm::mat3x4 triAdjustedXY = triangle;
+
+    triAdjustedXY[0][0] += cameraSystem.getCameraPosition().x + 1.0f;
+    triAdjustedXY[0][1] += cameraSystem.getCameraPosition().y + 1.0f;
+    triAdjustedXY[1][0] += cameraSystem.getCameraPosition().x + 1.0f;
+    triAdjustedXY[1][1] += cameraSystem.getCameraPosition().y + 1.0f;
+    triAdjustedXY[2][0] += cameraSystem.getCameraPosition().x + 1.0f;
+    triAdjustedXY[2][1] += cameraSystem.getCameraPosition().y + 1.0f;
+
+    triAdjustedXY[0][0] += meshPosition.x;
+    triAdjustedXY[0][1] += meshPosition.y;
+    triAdjustedXY[1][0] += meshPosition.x;
+    triAdjustedXY[1][1] += meshPosition.y;
+    triAdjustedXY[2][0] += meshPosition.x;
+    triAdjustedXY[2][1] += meshPosition.y;
+
+    triAdjustedXY[0][0] *= 0.5f * (float) screenWidth;
+    triAdjustedXY[0][1] *= 0.5f * (float) screenHeight;
+    triAdjustedXY[1][0] *= 0.5f * (float) screenWidth;
+    triAdjustedXY[1][1] *= 0.5f * (float) screenHeight;
+    triAdjustedXY[2][0] *= 0.5f * (float) screenWidth;
+    triAdjustedXY[2][1] *= 0.5f * (float) screenHeight;
+
+
+    return triAdjustedXY;
+}
+
+glm::mat3x4 RenderSystem::adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
+
+    glm::mat3x4 triAdjustedZ = triangle;
+    triAdjustedZ[0][2] = triangle[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
+    triAdjustedZ[1][2] = triangle[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
+    triAdjustedZ[2][2] = triangle[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
+
+
+    triAdjustedZ[0][2] += meshPosition.z;
+    triAdjustedZ[1][2] += meshPosition.z;
+    triAdjustedZ[2][2] += meshPosition.z;
+
+
+    return triAdjustedZ;
 }

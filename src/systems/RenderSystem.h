@@ -37,6 +37,10 @@ public:
             int screenWidth1);
 
     std::unique_ptr<cv::Mat> renderScene(cv::Mat &imageBackground, long long int i);
+
+    glm::mat3x4 adjustPositionXY(glm::mat3x4 mat1, glm::vec3 meshPosition, glm::vec3 cameraPosition);
+
+    glm::mat3x4 adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition);
 };
 
 #endif //PSR_3D_RENDERER_RENDERSYSTEM_H
