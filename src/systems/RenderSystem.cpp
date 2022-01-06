@@ -9,14 +9,14 @@ void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1,
     } else {
         std::cout << "Pointer to image is a null pointer!" << std::endl;
     }
-};
+}
 
 void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
                   int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
     DrawLine(imageBackground, x0, y0, x1, y1, colour);
     DrawLine(imageBackground, x1, y1, x2, y2, colour);
     DrawLine(imageBackground, x2, y2, x0, y0, colour);
-};
+}
 
 RenderSystem::RenderSystem(
         EntitySystem &entitySystem1,
