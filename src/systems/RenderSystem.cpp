@@ -45,6 +45,16 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
         glm::mat4x4 matModelToWorld = getModelToWorldMatrix(meshPosition);
         glm::mat4x4 matScaling = getScalingMatrix(glm::vec3(meshScale));
 
+        bool printMatrices = false;
+        if (printMatrices) {
+            std::cout << std::endl;
+            std::cout << "matProjection: " << glm::to_string(matProjection) << std::endl;
+            std::cout << "matCameraRotation: " << glm::to_string(matCameraRotation) << std::endl;
+            std::cout << "matModelToWorld: " << glm::to_string(matModelToWorld) << std::endl;
+            std::cout << "matScaling: " << glm::to_string(matScaling) << std::endl;
+            std::cout << std::endl;
+        }
+
         for (glm::mat3x4 tri: mesh) {
             // Order of operations:
             // PerspectiveProjection * CameraRotation * ModelToWorld * Scaling
