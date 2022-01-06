@@ -8,7 +8,6 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
     // Obtain new entity ID
     totalEntitiesAdded++;
     EntityID id = totalEntitiesAdded;
-    EntitySystem::addEntityId(id);
 
     // TODO: Fill this with real code. Also, use builders?
     switch (entity) {
@@ -59,10 +58,6 @@ void EntitySystem::removeEntity(EntityID id) {
     positions.erase(id);
     orientations.erase(id);
     meshes.erase(id);
-}
-
-void EntitySystem::addEntityId(int id){
-    entities.push_back(id);
 }
 
 Positions EntitySystem::getPositions() {
