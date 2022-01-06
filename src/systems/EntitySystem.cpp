@@ -96,7 +96,7 @@ void EntitySystem::updateGame(int keycode) {
     }
 }
 
-std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
+std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape) {
     std::vector<float> coords, normals;
     std::vector<unsigned int> tris, solids;
     //TODO: Need to figure a way to make relative paths work
@@ -106,10 +106,10 @@ std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
         const size_t numTris = tris.size() / 3;
         std::vector<glm::mat3x4> mesh;
 
-        for(size_t itri = 0; itri < numTris; ++itri) {
+        for (size_t itri = 0; itri < numTris; ++itri) {
             std::vector<glm::vec4> f;
-            for(size_t icorner = 0; icorner < 3; ++icorner) {
-                float* c = &coords[3 * tris [3 * itri + icorner]];
+            for (size_t icorner = 0; icorner < 3; ++icorner) {
+                float *c = &coords[3 * tris[3 * itri + icorner]];
                 glm::vec4 a = glm::vec4(c[0], c[1], c[2], 1);
                 f.push_back(a);
             }
@@ -118,7 +118,7 @@ std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape){
         }
         return mesh;
     }
-    catch (std::exception& e) {
+    catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }
 }
