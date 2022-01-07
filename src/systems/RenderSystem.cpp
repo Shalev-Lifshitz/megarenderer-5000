@@ -1,217 +1,200 @@
 #include "RenderSystem.h"
-#include <tuple>
-#include <utility>
-#include <type_traits>
+#include "glm/gtx/string_cast.hpp"
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/ext.hpp>
 
-void RenderSystem::MatrixVectorMultiplier(glm::vec3 &i, glm::vec3 &o, glm::mat4x4 &m) {
-    o.x = i.x * m[0][0] + i.y * m[1][0] + i.z * m[2][0] + m[3][0];
-    o.y = i.x * m[0][1] + i.y * m[1][1] + i.z * m[2][1] + m[3][1];
-    o.z = i.x * m[0][2] + i.y * m[1][2] + i.z * m[2][2] + m[3][2];
-    float w = i.x * m[0][3] + i.y * m[1][3] + i.z * m[2][3] + m[3][3];
 
-    if (w != 0.0f)
-    {
-        o.x/= w; o.y/= w; o.z/= w;
-    }
-};
-
-void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour){
-    if (imageBackground != nullptr){
+void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour) {
+    if (imageBackground != nullptr) {
         cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
     } else {
         std::cout << "Pointer to image is a null pointer!" << std::endl;
     }
-};
+}
 
-//cv::Mat @ 0x00007fbd60b073d0
-
-void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2, int colour){
-
+void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
+                  int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
     DrawLine(imageBackground, x0, y0, x1, y1, colour);
     DrawLine(imageBackground, x1, y1, x2, y2, colour);
     DrawLine(imageBackground, x2, y2, x0, y0, colour);
+}
 
-};
-
-RenderSystem::RenderSystem(EntitySystem& entitySystem1, CameraSystem& cameraSystem1)
-    : cameraSystem(cameraSystem1), entitySystem(entitySystem1) {}
+RenderSystem::RenderSystem(
+        EntitySystem &entitySystem1,
+        CameraSystem &cameraSystem1,
+        int screenHeight1,
+        int screenWidth1)
+        : cameraSystem(cameraSystem1), entitySystem(entitySystem1), screenHeight(screenHeight1),
+          screenWidth(screenWidth1) {}
 
 std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, long long int elapsed_time) {
     std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
 
-    auto screenHeight = 800;
-    auto screenWidth = 800;
+    auto thetaTime = 1.0f * elapsed_time;
 
-    //Projection Matrix
-    float fNear = 0.1f;
-    float fFar = 1000.0f;
-    float fFov = 90.0f;
-    float fAspectRatio = (float) screenHeight / (float) screenWidth;
-    float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
+    // These matrices can be defined outside of the loop
+    glm::mat4x4 matProjection = getProjectionMatrix();
+    glm::mat4x4 matCameraRotation = getCameraRotationMatrix(0, 0, 0);
 
-    //Scale matrix
-    int meshScale = 1;
+    // TODO Orientation of mesh in model coords (before anything else).
+    for (auto const &pair: entitySystem.getMeshes()) {
+        std::vector<glm::mat3x4> mesh = pair.second;
+        glm::vec3 meshPosition = entitySystem.getPositions().at(pair.first);
+        float meshScale = entitySystem.getScales().at(pair.first);
 
+        // These matrices need entity info to define
+        glm::mat4x4 matModelToWorld = getModelToWorldMatrix(meshPosition);
+        glm::mat4x4 matScaling = getScalingMatrix(glm::vec3(meshScale));
 
-    matProj[0][0] = fAspectRatio * fFovRad;
-    matProj[0][1] = 0.0f;
-    matProj[0][2] = 0.0f;
-    matProj[0][3] = 0.0f;
-    matProj[1][1] = fFovRad;
-    matProj[1][0] = 0.0f;
-    matProj[1][2] = 0.0f;
-    matProj[1][3] = 0.0f;
-    matProj[2][0] = 0.0f;
-    matProj[2][1] = 0.0f;
-    matProj[2][2] = fFar / (fFar - fNear);
-    matProj[2][3] = 1.0f;
-    matProj[3][0] = 0.0f;
-    matProj[3][1] = 0.0f;
-    matProj[3][2] = (-fFar * fNear) / (fFar - fNear);
-    matProj[3][3] = 0.0f;
+        bool printMatrices = false;
+        if (printMatrices) {
+            std::cout << std::endl;
+            std::cout << "matProjection: " << glm::to_string(matProjection) << std::endl;
+            std::cout << "matCameraRotation: " << glm::to_string(matCameraRotation) << std::endl;
+            std::cout << "matModelToWorld: " << glm::to_string(matModelToWorld) << std::endl;
+            std::cout << "matScaling: " << glm::to_string(matScaling) << std::endl;
+            std::cout << std::endl;
+        }
 
-    glm::mat4x4 matRotZ, matRotX, matScale;
-    auto fTheta = 1.0f * elapsed_time;
+        for (glm::mat3x4 tri: mesh) {
+            // Order of operations:
+            // PerspectiveProjection * CameraRotation * ModelToWorld * Scaling
 
-    // Rotation z
-    matRotZ[0][0] = cosf(fTheta);
-    matRotZ[0][1] = sinf(fTheta);
-    matRotZ[0][2] = 0;
-    matRotZ[0][3] = 0;
-    matRotZ[1][0] = -sinf(fTheta);
-    matRotZ[1][1] =cosf(fTheta);;
-    matRotZ[1][2] = 0;
-    matRotZ[1][3] = 0;
-    matRotZ[2][0] = 0;
-    matRotZ[2][1] = 0;
-    matRotZ[2][2] = 1;
-    matRotZ[2][3] = 0;
-    matRotZ[3][0] = 0;
-    matRotZ[3][1] = 0;
-    matRotZ[3][2] = 0;
-    matRotZ[3][3] = 1;
+            glm::mat3x4 triTranslated = adjustPositionZ(tri, meshPosition, cameraSystem.getCameraPosition());
+            glm::mat4x4 matBeforeProjection = matCameraRotation * matModelToWorld * matScaling;
+            glm::mat3x4 triBeforeProjection = matBeforeProjection * triTranslated;
+            glm::mat3x4 triPreProjected = performProjection(matProjection, triBeforeProjection);
+            glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, meshPosition, cameraSystem.getCameraPosition());
 
-    // Rotation x
-    matRotX[0][0] = 1;
-    matRotX[0][1] = 0;
-    matRotX[0][2] = 0;
-    matRotX[0][3] = 0;
-    matRotX[1][0] = 0;
-    matRotX[1][1] = cosf(fTheta * 0.5f);
-    matRotX[1][2] = sinf(fTheta * 0.5f);
-    matRotX[1][3] = 0;
-    matRotX[2][0] = 0;
-    matRotX[2][1] = -sinf(fTheta * 0.5f);
-    matRotX[2][2] = cosf(fTheta * 0.5f);
-    matRotX[2][3] = 0;
-    matRotX[3][0] = 0;
-    matRotX[3][1] = 0;
-    matRotX[3][2] = 0;
-    matRotX[3][3] = 1;
-
-    matScale[0][0] = meshScale;
-    matScale[0][1] = 0;
-    matScale[0][2] = 0;
-    matScale[0][3] = 0;
-    matScale[1][0] = 0;
-    matScale[1][1] = meshScale;
-    matScale[1][2] = 0;
-    matScale[1][3] = 0;
-    matScale[2][0] = 0;
-    matScale[2][1] = 0;
-    matScale[2][2] = meshScale;
-    matScale[2][3] = 0;
-    matScale[3][0] = 0;
-    matScale[3][1] = 0;
-    matScale[3][2] = 0;
-    matScale[3][3] = meshScale;
-
-    const float radius = 5.0f;
-    float camX = sin(elapsed_time) * radius;
-    float camZ = cos(elapsed_time) * radius;
-    glm::mat4 view;
-
-
-    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);;
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-
-
-//    view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-
-
-    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
-    for(auto id = 1; id <= entitySystem.getMeshes().size(); ++id) {
-        std::vector<glm::mat3x3> mesh = entitySystem.getMeshes().at(id);
-
-        meshScale= entitySystem.getScales().at(id);
-        matScale = view * matScale ;
-
-        //Draw triangles
-        for (glm::mat3x3 tri: mesh) {
-            glm::mat3x3 triProjected, triTranslated, triScale, triRotatedZ, triRotatedZX;
-
-
-            MatrixVectorMultiplier(tri[0], triScale[0], matScale);
-            MatrixVectorMultiplier(tri[1], triScale[1], matScale);
-            MatrixVectorMultiplier(tri[2], triScale[2], matScale);
-
-            // Compute translated triangle (in game world coordinates)
-            triTranslated = triScale;
-            triTranslated[0][2] = triScale[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
-            triTranslated[1][2] = triScale[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
-            triTranslated[2][2] = triScale[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
-
-//            MatrixVectorMultiplier(triScale[0], triRotatedZ[0], matRotZ);
-//            MatrixVectorMultiplier(triScale[1], triRotatedZ[1], matRotZ);
-//            MatrixVectorMultiplier(triScale[2], triRotatedZ[2], matRotZ);
-//
-//            MatrixVectorMultiplier(triRotatedZ[0], triRotatedZX[0], matRotX);
-//            MatrixVectorMultiplier(triRotatedZ[1], triRotatedZX[1], matRotX);
-//            MatrixVectorMultiplier(triRotatedZ[2], triRotatedZX[2], matRotX);
-//
-//            // Compute translated triangle (in game world coordinates)
-//            triTranslated = triRotatedZX;
-//            triTranslated[0][2] = triRotatedZX[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
-//            triTranslated[1][2] = triRotatedZX[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
-//            triTranslated[2][2] = triRotatedZX[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
-
-            MatrixVectorMultiplier(triTranslated[0], triProjected[0], matProj);
-            MatrixVectorMultiplier(triTranslated[1], triProjected[1], matProj);
-            MatrixVectorMultiplier(triTranslated[2], triProjected[2], matProj);
-
-//            // Compute translated triangle (in game world coordinates)
-//            triTranslated = tri;
-//            triTranslated[0][2] = tri[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
-//            triTranslated[1][2] = tri[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
-//            triTranslated[2][2] = tri[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
-//
-//            MatrixVectorMultiplier(triTranslated[0], triProjected[0], matProj);
-//            MatrixVectorMultiplier(triTranslated[1], triProjected[1], matProj);
-//            MatrixVectorMultiplier(triTranslated[2], triProjected[2], matProj);
-
-            //scale into view
-            triProjected[0][0] += cameraSystem.getCameraPosition().x + 1.0f;
-            triProjected[0][1] += cameraSystem.getCameraPosition().y + 1.0f;
-            triProjected[1][0] += cameraSystem.getCameraPosition().x + 1.0f;
-            triProjected[1][1] += cameraSystem.getCameraPosition().y + 1.0f;
-            triProjected[2][0] += cameraSystem.getCameraPosition().x + 1.0f;
-            triProjected[2][1] += cameraSystem.getCameraPosition().y + 1.0f;
-
-            triProjected[0][0] *= 0.5f * (float) screenWidth;
-            triProjected[0][1] *= 0.5f * (float) screenHeight;
-            triProjected[1][0] *= 0.5f * (float) screenWidth;
-            triProjected[1][1] *= 0.5f * (float) screenHeight;
-            triProjected[2][0] *= 0.5f * (float) screenWidth;
-            triProjected[2][1] *= 0.5f * (float) screenHeight;
-
-            DrawTriangle(image, triProjected[0][0], triProjected[0][1],
+            DrawTriangle(image,
+                         triProjected[0][0], triProjected[0][1],
                          triProjected[1][0], triProjected[1][1],
                          triProjected[2][0], triProjected[2][1],
                          0x0000);
         }
     }
     return image;
+}
+
+glm::mat3x4 RenderSystem::performProjection(glm::mat4x4 matProjection, glm::mat3x4 tri) {
+    glm::mat3x4 triProjected = matProjection * tri;
+    float w0 = glm::dot(tri[0], glm::row(matProjection, 3));
+    float w1 = glm::dot(tri[1], glm::row(matProjection, 3));
+    float w2 = glm::dot(tri[2], glm::row(matProjection, 3));
+
+    // TODO: What to do when w is 0???
+    if (w0 != 0) { triProjected[0] /= w0; }
+    if (w1 != 0) { triProjected[1] /= w1; }
+    if (w2 != 0) { triProjected[2] /= w2; }
+
+    return triProjected;
+}
+
+glm::mat4x4 RenderSystem::getProjectionMatrix() {
+    float zNear = 0.1;
+    float zFar = 1000;
+
+    float fovX = 90;
+    float fovY = 90;
+
+    glm::mat4x4 mat(0);
+    mat[0][0] = 1 / tan(fovX / 2);
+    mat[1][1] = 1 / tan(fovY / 2);
+    mat[2][2] = -((zFar + zNear) / (zFar - zNear));
+    mat[2][3] = -1;
+    mat[3][2] = -((2 * zNear * zFar) / (zFar - zNear));
+
+    return mat;
+}
+
+glm::mat4x4 RenderSystem::getCameraRotationMatrix(float thetaX, float thetaY, float thetaZ) {
+    glm::mat4x4 matRotX = getRotationMatrixAroundX(thetaX);
+    glm::mat4x4 matRotY = getRotationMatrixAroundY(thetaY);
+    glm::mat4x4 matRotZ = getRotationMatrixAroundZ(thetaZ);
+    glm::mat4x4 matRot = matRotZ * matRotY * matRotX;
+    return matRot;
+}
+
+glm::mat4x4 RenderSystem::getRotationMatrixAroundX(float theta) {
+    glm::mat4x4 mat(1);
+    mat[1][1] = cos(theta);
+    mat[1][2] = sin(theta);
+    mat[2][1] = -sin(theta);
+    mat[2][2] = cos(theta);
+    return mat;
+}
+
+glm::mat4x4 RenderSystem::getRotationMatrixAroundY(float theta) {
+    glm::mat4x4 mat(1);
+    mat[0][0] = cos(theta);
+    mat[0][2] = -sin(theta);
+    mat[2][0] = sin(theta);
+    mat[2][2] = cos(theta);
+    return mat;
+}
+
+glm::mat4x4 RenderSystem::getRotationMatrixAroundZ(float theta) {
+    glm::mat4x4 mat(1);
+    mat[0][0] = cos(theta);
+    mat[0][1] = sin(theta);
+    mat[1][0] = -sin(theta);
+    mat[1][1] = cos(theta);
+    return mat;
+}
+
+glm::mat4x4 RenderSystem::getModelToWorldMatrix(glm::vec3 meshPosition) {
+    return glm::translate(glm::mat4(1.0f), meshPosition);
+}
+
+glm::mat4x4 RenderSystem::getScalingMatrix(glm::vec3 scaleVector) {
+    glm::mat4x4 mat(1);
+    mat[0][0] = scaleVector.x;
+    mat[1][1] = scaleVector.y;
+    mat[2][2] = scaleVector.z;
+    return mat;
+}
+
+glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
+
+    glm::mat3x4 triAdjustedXY = triangle;
+
+    triAdjustedXY[0][0] += cameraSystem.getCameraPosition().x + 1.0f;
+    triAdjustedXY[0][1] += cameraSystem.getCameraPosition().y + 1.0f;
+    triAdjustedXY[1][0] += cameraSystem.getCameraPosition().x + 1.0f;
+    triAdjustedXY[1][1] += cameraSystem.getCameraPosition().y + 1.0f;
+    triAdjustedXY[2][0] += cameraSystem.getCameraPosition().x + 1.0f;
+    triAdjustedXY[2][1] += cameraSystem.getCameraPosition().y + 1.0f;
+
+    triAdjustedXY[0][0] += meshPosition.x;
+    triAdjustedXY[0][1] += meshPosition.y;
+    triAdjustedXY[1][0] += meshPosition.x;
+    triAdjustedXY[1][1] += meshPosition.y;
+    triAdjustedXY[2][0] += meshPosition.x;
+    triAdjustedXY[2][1] += meshPosition.y;
+
+    triAdjustedXY[0][0] *= 0.5f * (float) screenWidth;
+    triAdjustedXY[0][1] *= 0.5f * (float) screenHeight;
+    triAdjustedXY[1][0] *= 0.5f * (float) screenWidth;
+    triAdjustedXY[1][1] *= 0.5f * (float) screenHeight;
+    triAdjustedXY[2][0] *= 0.5f * (float) screenWidth;
+    triAdjustedXY[2][1] *= 0.5f * (float) screenHeight;
+
+
+    return triAdjustedXY;
+}
+
+glm::mat3x4 RenderSystem::adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
+
+    glm::mat3x4 triAdjustedZ = triangle;
+    triAdjustedZ[0][2] = triangle[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
+    triAdjustedZ[1][2] = triangle[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
+    triAdjustedZ[2][2] = triangle[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
+
+
+    triAdjustedZ[0][2] += meshPosition.z;
+    triAdjustedZ[1][2] += meshPosition.z;
+    triAdjustedZ[2][2] += meshPosition.z;
+
+
+    return triAdjustedZ;
 }

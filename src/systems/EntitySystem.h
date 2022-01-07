@@ -5,24 +5,25 @@
 #include <opencv2/opencv.hpp>
 #include "../entities/EntityComponents.h"
 #include "../systems/CameraSystem.h"
-#include "../library/stl_reader.h"
+#include "../external-libraries/stl_reader.h"
 
 class EntitySystem {
 private:
-    CameraSystem& cameraSystem;  // TODO: Should & be on first or second? Why does & make sense here?
+    CameraSystem &cameraSystem;  // TODO: Should & be on first or second? Why does & make sense here?
     Positions positions;
     Orientations orientations;
     Scales scales;
     Meshes meshes;
     int64_t totalEntitiesAdded;
-    std::vector<glm::mat3x3> MeshGenerator(std::string shape);
-    Entities entities;
+
+    std::vector<glm::mat3x4> MeshGenerator(std::string shape);
+
 public:
     enum Entity {
         SPHERE, CUBE, TORUS, PYRAMID, AXES
     };
 
-    explicit EntitySystem(CameraSystem& cameraSystem1);
+    explicit EntitySystem(CameraSystem &cameraSystem1);
 
     void updateGame(int keycode);
 
@@ -37,8 +38,6 @@ public:
     Scales getScales();
 
     Meshes getMeshes();
-
-    void addEntityId(int id);
 };
 
 

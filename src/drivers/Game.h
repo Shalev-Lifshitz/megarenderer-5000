@@ -9,14 +9,14 @@
 
 class Game {
 private:
-    CameraSystem& cameraSystem;
-    EntitySystem& entitySystem;
-    RenderSystem& renderSystem;
+    CameraSystem &cameraSystem;
+    EntitySystem &entitySystem;
+    RenderSystem &renderSystem;
 public:
     explicit Game(
-            CameraSystem& cameraSystem1,
-            EntitySystem& entitySystem1,
-            RenderSystem& renderSystem1);
+            CameraSystem &cameraSystem1,
+            EntitySystem &entitySystem1,
+            RenderSystem &renderSystem1);
 
     bool runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth);
 };
