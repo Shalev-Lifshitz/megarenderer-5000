@@ -3,20 +3,10 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext.hpp>
 
-
-void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour) {
-    if (imageBackground != nullptr) {
-        cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
-    } else {
-        std::cout << "Pointer to image is a null pointer!" << std::endl;
-    }
-}
-
-void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
-                  int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
-    DrawLine(imageBackground, x0, y0, x1, y1, colour);
-    DrawLine(imageBackground, x1, y1, x2, y2, colour);
-    DrawLine(imageBackground, x2, y2, x0, y0, colour);
+void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
+                   int x0, int y0, int x1, int y1, int x2, int y2, cv::Scalar_<double> color){
+    std::vector<cv::Point> pts = {cv::Point(x0, y0), cv::Point(x1, y1), cv::Point(x2, y2)};
+    cv::fillPoly(*imageBackground, pts, color);
 }
 
 RenderSystem::RenderSystem(
@@ -41,6 +31,7 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
         std::vector<glm::mat3x4> mesh = pair.second;
         glm::vec3 meshPosition = entitySystem.getPositions().at(pair.first);
         float meshScale = entitySystem.getScales().at(pair.first);
+        auto color = entitySystem.getColors().at(pair.first);
 
         // These matrices need entity info to define
         glm::mat4x4 matModelToWorld = getModelToWorldMatrix(meshPosition);
@@ -66,11 +57,12 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
             glm::mat3x4 triPreProjected = performProjection(matProjection, triBeforeProjection);
             glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, meshPosition, cameraSystem.getCameraPosition());
 
-            DrawTriangle(image,
-                         triProjected[0][0], triProjected[0][1],
-                         triProjected[1][0], triProjected[1][1],
-                         triProjected[2][0], triProjected[2][1],
-                         0x0000);
+
+            FillTriangles(image,
+                          triProjected[0][0], triProjected[0][1],
+                          triProjected[1][0], triProjected[1][1],
+                          triProjected[2][0], triProjected[2][1],
+                          color);
         }
     }
     return image;
