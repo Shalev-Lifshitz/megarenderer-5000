@@ -2,7 +2,7 @@
 #include "Game.h"
 
 int main(int argc, char **argv) {
-    std::string backgroundImagePath = "./images/gradient.jpeg";
+    std::string backgroundImagePath = "./images/3d-mesh.jpg";
     int cameraViewAngle = 90;
     int screenHeight = 800;
     int screenWidth = 800;
