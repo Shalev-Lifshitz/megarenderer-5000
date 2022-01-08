@@ -2,51 +2,48 @@
 #include "CameraSystem.h"
 #include "glm/gtx/string_cast.hpp"
 
+// TODO: Check that orientation is always a unit vector
 CameraSystem::CameraSystem(int cameraViewAngle)
         : camera(cameraViewAngle) {}
 
 void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
-    // Determine how to update camera position based on key pressed
-    bool updatedPosition = false;
-    float mult = 0.05;
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 positionUpdate;
+    float multiplier = 0.05;
     switch (keycode) {
         case 119: // 'w' - FORWARD
-            positionUpdate = mult * cameraFront;
-            updatedPosition = true;
+            moveCameraForward(multiplier);
             break;
         case 115: // 's' - BACKWARD
-            positionUpdate = -mult * cameraFront;
-            updatedPosition = true;
+            moveCameraBackward(multiplier);
             break;
         case 97: // 'a' - LEFT
-            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * mult;
-            updatedPosition = true;
+            moveCameraLeft(multiplier);
             break;
         case 100: // 'd' - RIGHT
-            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * -mult;
-            updatedPosition = true;
+            moveCameraRight(multiplier);
             break;
         case 32: // 'SPACE' - UP
-            positionUpdate = glm::vec3(0, 1 * mult, 0);
-            updatedPosition = true;
+            moveCameraUp(multiplier);
             break;
         case 9: // 'TAB' - DOWN
-            positionUpdate = glm::vec3(0, -1 * mult, 0);
-            updatedPosition = true;
+            moveCameraDown(multiplier);
             break;
     }
-    if (updatedPosition) {
-        // Compute new position and update camera
-        glm::vec3 newCameraPosition = camera.getPosition() + positionUpdate;
-        camera.setPosition(newCameraPosition);
-    }
-
 
     // TODO: Update camera orientation
-//    setCameraOrientation(mousePosition);
+    // setCameraOrientation(mousePosition);
+}
+
+
+glm::vec3 CameraSystem::getCameraPosition() {
+    return camera.getPosition();
+}
+
+void CameraSystem::setCameraPosition(glm::vec3 newCameraPosition) {
+    camera.setPosition(newCameraPosition);
+}
+
+glm::vec3 CameraSystem::getCameraOrientation() {
+    return camera.getOrientation();
 }
 
 void CameraSystem::setCameraOrientation(const glm::vec2 &mousePosition) {
@@ -70,14 +67,44 @@ void CameraSystem::setCameraOrientation(const glm::vec2 &mousePosition) {
     }
 }
 
-glm::vec3 CameraSystem::getCameraPosition() {
-    return camera.getPosition();
-}
-
-glm::vec3 CameraSystem::getCameraOrientation() {
-    return camera.getOrientation();
-}
-
 int CameraSystem::getCameraViewAngle() {
     return camera.getCameraViewAngle();
 }
+
+void CameraSystem::moveCameraForward(float multiplier) {
+    glm::vec3 newCameraPosition = multiplier * camera.getOrientation();
+    setCameraPosition(newCameraPosition);
+}
+
+void CameraSystem::moveCameraBackward(float multiplier) {
+    glm::vec3 newCameraPosition = multiplier * -camera.getOrientation();
+    setCameraPosition(newCameraPosition);
+}
+
+void CameraSystem::moveCameraRight(float multiplier) {
+    glm::vec3 positionUpdate = multiplier * glm::normalize(glm::cross(positiveY, getCameraOrientation()));
+    glm::vec3 newCameraPosition = getCameraPosition() + positionUpdate;
+    setCameraPosition(newCameraPosition);
+}
+
+void CameraSystem::moveCameraLeft(float multiplier) {
+    glm::vec3 positionUpdate = multiplier * -glm::normalize(glm::cross(positiveY, getCameraOrientation()));
+    glm::vec3 newCameraPosition = getCameraPosition() + positionUpdate;
+    setCameraPosition(newCameraPosition);
+}
+
+void CameraSystem::moveCameraUp(float multiplier) {
+    glm::vec3 newCameraPosition = multiplier * positiveY;
+    setCameraPosition(newCameraPosition);
+}
+
+void CameraSystem::moveCameraDown(float multiplier) {
+    glm::vec3 newCameraPosition = multiplier * -positiveY;
+    setCameraPosition(newCameraPosition);
+}
+
+void CameraSystem::performSanityChecks() {
+    // Check that camera orientation vector is a unit vector
+    assert(glm::length(getCameraOrientation()) == 1);
+}
+
