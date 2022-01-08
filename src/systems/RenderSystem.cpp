@@ -9,6 +9,21 @@ void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
     cv::fillPoly(*imageBackground, pts, color);
 }
 
+void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour) {
+        if (imageBackground != nullptr) {
+            cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
+        } else {
+            std::cout << "Pointer to image is a null pointer!" << std::endl;
+        }
+    }
+
+void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
+                  int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
+    DrawLine(imageBackground, x0, y0, x1, y1, colour);
+    DrawLine(imageBackground, x1, y1, x2, y2, colour);
+    DrawLine(imageBackground, x2, y2, x0, y0, colour);
+}
+
 RenderSystem::RenderSystem(
         EntitySystem &entitySystem1,
         CameraSystem &cameraSystem1,
@@ -57,12 +72,21 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
             glm::mat3x4 triPreProjected = performProjection(matProjection, triBeforeProjection);
             glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, meshPosition, cameraSystem.getCameraPosition());
 
+            if(triProjected[0][2] < cameraSystem.getCameraPosition().z + 2 and triProjected[1][2] < cameraSystem.getCameraPosition().z + 2 and triProjected[2][2] < cameraSystem.getCameraPosition().z + 2) {
+                if(abs(triProjected[0][1] - cameraSystem.getCameraPosition().y) > 2 and abs(triProjected[1][1] - cameraSystem.getCameraPosition().y) > 2 and abs(triProjected[2][1] - cameraSystem.getCameraPosition().y) > 2) {
+                    if(abs(triProjected[0][0] - cameraSystem.getCameraPosition().x) > 2 and abs(triProjected[1][0] - cameraSystem.getCameraPosition().x) > 2 and abs(triProjected[2][0] - cameraSystem.getCameraPosition().x) > 2) {
+                FillTriangles(image,
+                              triProjected[0][0], triProjected[0][1],
+                              triProjected[1][0], triProjected[1][1],
+                              triProjected[2][0], triProjected[2][1],
+                              color);
 
-            FillTriangles(image,
-                          triProjected[0][0], triProjected[0][1],
-                          triProjected[1][0], triProjected[1][1],
-                          triProjected[2][0], triProjected[2][1],
-                          color);
+                DrawTriangle(image,
+                             triProjected[0][0], triProjected[0][1],
+                             triProjected[1][0], triProjected[1][1],
+                             triProjected[2][0], triProjected[2][1],
+                             0x0000);
+            }}}
         }
     }
     return image;
@@ -75,9 +99,9 @@ glm::mat3x4 RenderSystem::performProjection(glm::mat4x4 matProjection, glm::mat3
     float w2 = glm::dot(tri[2], glm::row(matProjection, 3));
 
     // TODO: What to do when w is 0???
-    if (w0 != 0) { triProjected[0] /= w0; }
-    if (w1 != 0) { triProjected[1] /= w1; }
-    if (w2 != 0) { triProjected[2] /= w2; }
+    if (w0 != 0) { triProjected[0] /= abs(w0); }
+    if (w1 != 0) { triProjected[1] /= abs(w1); }
+    if (w2 != 0) { triProjected[2] /= abs(w2); }
 
     return triProjected;
 }
@@ -150,19 +174,13 @@ glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshP
 
     glm::mat3x4 triAdjustedXY = triangle;
 
-    triAdjustedXY[0][0] += cameraSystem.getCameraPosition().x + 1.0f;
-    triAdjustedXY[0][1] += cameraSystem.getCameraPosition().y + 1.0f;
-    triAdjustedXY[1][0] += cameraSystem.getCameraPosition().x + 1.0f;
-    triAdjustedXY[1][1] += cameraSystem.getCameraPosition().y + 1.0f;
-    triAdjustedXY[2][0] += cameraSystem.getCameraPosition().x + 1.0f;
-    triAdjustedXY[2][1] += cameraSystem.getCameraPosition().y + 1.0f;
+    triAdjustedXY[0][0] += cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
+    triAdjustedXY[0][1] += cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
+    triAdjustedXY[1][0] += cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
+    triAdjustedXY[1][1] += cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
+    triAdjustedXY[2][0] += cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
+    triAdjustedXY[2][1] += cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
 
-    triAdjustedXY[0][0] += meshPosition.x;
-    triAdjustedXY[0][1] += meshPosition.y;
-    triAdjustedXY[1][0] += meshPosition.x;
-    triAdjustedXY[1][1] += meshPosition.y;
-    triAdjustedXY[2][0] += meshPosition.x;
-    triAdjustedXY[2][1] += meshPosition.y;
 
     triAdjustedXY[0][0] *= 0.5f * (float) screenWidth;
     triAdjustedXY[0][1] *= 0.5f * (float) screenHeight;
@@ -171,22 +189,15 @@ glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshP
     triAdjustedXY[2][0] *= 0.5f * (float) screenWidth;
     triAdjustedXY[2][1] *= 0.5f * (float) screenHeight;
 
-
     return triAdjustedXY;
 }
 
 glm::mat3x4 RenderSystem::adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
 
     glm::mat3x4 triAdjustedZ = triangle;
-    triAdjustedZ[0][2] = triangle[0][2] + 3.0f + cameraSystem.getCameraPosition().z;
-    triAdjustedZ[1][2] = triangle[1][2] + 3.0f + cameraSystem.getCameraPosition().z;
-    triAdjustedZ[2][2] = triangle[2][2] + 3.0f + cameraSystem.getCameraPosition().z;
-
-
-    triAdjustedZ[0][2] += meshPosition.z;
-    triAdjustedZ[1][2] += meshPosition.z;
-    triAdjustedZ[2][2] += meshPosition.z;
-
+    triAdjustedZ[0][2] = triangle[0][2] + 2.0f + cameraSystem.getCameraPosition().z;
+    triAdjustedZ[1][2] = triangle[1][2] + 2.0f + cameraSystem.getCameraPosition().z;
+    triAdjustedZ[2][2] = triangle[2][2] + 2.0f + cameraSystem.getCameraPosition().z;
 
     return triAdjustedZ;
 }
