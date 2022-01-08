@@ -4,7 +4,7 @@
 #include <glm/ext.hpp>
 
 void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
-                   int x0, int y0, int x1, int y1, int x2, int y2, cv::Scalar_<double> color){
+                   int x0, int y0, int x1, int y1, int x2, int y2, cv::Scalar_<double> color) {
     std::vector<cv::Point> pts = {cv::Point(x0, y0), cv::Point(x1, y1), cv::Point(x2, y2)};
     cv::fillPoly(*imageBackground, pts, color);
 }
@@ -22,47 +22,53 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
 
     auto thetaTime = 1.0f * elapsed_time;
 
+    glm::vec3 cameraPosition = cameraSystem.getCameraPosition();
+    glm::vec3 cameraOrientation = cameraSystem.getCameraOrientation();
+
     // These matrices can be defined outside of the loop
-    glm::mat4x4 matProjection = getProjectionMatrix();
-    glm::mat4x4 matCameraRotation = getCameraRotationMatrix(0, 0, 0);
+    glm::mat4x4 projectionMatrix = getProjectionMatrix();
+    glm::mat4x4 cameraMatrix = getCameraMatrix(0, 0, 0);
 
     // TODO Orientation of mesh in model coords (before anything else).
     for (auto const &pair: entitySystem.getMeshes()) {
-        std::vector<glm::mat3x4> mesh = pair.second;
-        glm::vec3 meshPosition = entitySystem.getPositions().at(pair.first);
-        float meshScale = entitySystem.getScales().at(pair.first);
-        auto color = entitySystem.getColors().at(pair.first);
+        // Get entity components from entity system
+        EntityID id = pair.first;
+        std::vector<glm::mat3x4> entityMesh = pair.second;
+        glm::vec3 entityPosition = entitySystem.getPositions().at(id);
+        glm::vec3 entityOrientation = entitySystem.getOrientations().at(id);
+        glm::vec3 entityScale = entitySystem.getScales().at(id);
+        cv::Scalar_<double> entityColor = entitySystem.getColors().at(id);
 
         // These matrices need entity info to define
-        glm::mat4x4 matModelToWorld = getModelToWorldMatrix(meshPosition);
-        glm::mat4x4 matScaling = getScalingMatrix(glm::vec3(meshScale));
+        glm::mat4x4 modelToWorldMatrix = getModelToWorldMatrix(entityPosition);
+        glm::mat4x4 scalingMatrix = getScalingMatrix(entityScale);
 
         bool printMatrices = false;
         if (printMatrices) {
             std::cout << std::endl;
-            std::cout << "matProjection: " << glm::to_string(matProjection) << std::endl;
-            std::cout << "matCameraRotation: " << glm::to_string(matCameraRotation) << std::endl;
-            std::cout << "matModelToWorld: " << glm::to_string(matModelToWorld) << std::endl;
-            std::cout << "matScaling: " << glm::to_string(matScaling) << std::endl;
+            std::cout << "projectionMatrix: " << glm::to_string(projectionMatrix) << std::endl;
+            std::cout << "cameraMatrix: " << glm::to_string(cameraMatrix) << std::endl;
+            std::cout << "modelToWorldMatrix: " << glm::to_string(modelToWorldMatrix) << std::endl;
+            std::cout << "scalingMatrix: " << glm::to_string(scalingMatrix) << std::endl;
             std::cout << std::endl;
         }
 
-        for (glm::mat3x4 tri: mesh) {
+        for (glm::mat3x4 tri: entityMesh) {
             // Order of operations:
             // PerspectiveProjection * CameraRotation * ModelToWorld * Scaling
 
-            glm::mat3x4 triTranslated = adjustPositionZ(tri, meshPosition, cameraSystem.getCameraPosition());
-            glm::mat4x4 matBeforeProjection = matCameraRotation * matModelToWorld * matScaling;
+            glm::mat3x4 triTranslated = adjustPositionZ(tri, entityPosition, cameraPosition);
+            glm::mat4x4 matBeforeProjection = cameraMatrix * modelToWorldMatrix * scalingMatrix;
             glm::mat3x4 triBeforeProjection = matBeforeProjection * triTranslated;
-            glm::mat3x4 triPreProjected = performProjection(matProjection, triBeforeProjection);
-            glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, meshPosition, cameraSystem.getCameraPosition());
+            glm::mat3x4 triPreProjected = performProjection(projectionMatrix, triBeforeProjection);
+            glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, entityPosition, cameraPosition);
 
 
             FillTriangles(image,
                           triProjected[0][0], triProjected[0][1],
                           triProjected[1][0], triProjected[1][1],
                           triProjected[2][0], triProjected[2][1],
-                          color);
+                          entityColor);
         }
     }
     return image;
@@ -99,7 +105,7 @@ glm::mat4x4 RenderSystem::getProjectionMatrix() {
     return mat;
 }
 
-glm::mat4x4 RenderSystem::getCameraRotationMatrix(float thetaX, float thetaY, float thetaZ) {
+glm::mat4x4 RenderSystem::getCameraMatrix(float thetaX, float thetaY, float thetaZ) {
     glm::mat4x4 matRotX = getRotationMatrixAroundX(thetaX);
     glm::mat4x4 matRotY = getRotationMatrixAroundY(thetaY);
     glm::mat4x4 matRotZ = getRotationMatrixAroundZ(thetaZ);
