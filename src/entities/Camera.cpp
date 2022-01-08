@@ -4,7 +4,7 @@
 Camera::Camera(int cameraViewAngle1)
         : cameraViewAngle(cameraViewAngle1),
           position(glm::vec3(0, 0, 0)),
-          orientation(glm::vec3(1, 0, 0)) {}
+          orientation(glm::vec3(0, 0, 1)) {}
 
 glm::vec3 Camera::getPosition() {
     return position;
