@@ -16,6 +16,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
+            colors[id] = {0, 0, 255};
             meshes[id] = MeshGenerator("sphere");
             std::cout << "Finished." << std::endl;
             break;
@@ -24,6 +25,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
+            colors[id] = {255, 0, 0};
             meshes[id] = MeshGenerator("cube");
             std::cout << "Finished." << std::endl;
             break;
@@ -32,6 +34,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
+            colors[id] = {0, 255, 0};
             meshes[id] = MeshGenerator("torus");
             std::cout << "Finished." << std::endl;
             break;
@@ -40,6 +43,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
+            colors[id] = {255, 0, 255};
             meshes[id] = MeshGenerator("pyramid");
             std::cout << "Finished." << std::endl;
             break;
@@ -48,6 +52,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
             scales[id] = 1;
+            colors[id] = {0, 0, 0};
             meshes[id] = MeshGenerator("axes");
             std::cout << "Finished." << std::endl;
             break;
@@ -76,22 +81,26 @@ Scales EntitySystem::getScales() {
     return scales;
 }
 
+Colors EntitySystem::getColors() {
+    return colors ;
+}
+
 void EntitySystem::updateGame(int keycode) {
     switch (keycode) {
         case 83: // 'S' - SPHERE
-            addEntity(SPHERE, cameraSystem.getCameraPosition());
+            addEntity(SPHERE, -cameraSystem.getCameraPosition());
             break;
         case 67: // 'C' - CUBE
-            addEntity(CUBE, cameraSystem.getCameraPosition());
+            addEntity(CUBE, -cameraSystem.getCameraPosition());
             break;
         case 84: // 'T' - TORUS
-            addEntity(TORUS, cameraSystem.getCameraPosition());
+            addEntity(TORUS, -cameraSystem.getCameraPosition());
             break;
         case 80: // 'P' - PYRAMID
-            addEntity(PYRAMID, cameraSystem.getCameraPosition());
+            addEntity(PYRAMID, -cameraSystem.getCameraPosition());
             break;
         case 65: // 'A' - AXES
-            addEntity(AXES, cameraSystem.getCameraPosition());
+            addEntity(AXES, -cameraSystem.getCameraPosition());
             break;
     }
 }

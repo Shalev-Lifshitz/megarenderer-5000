@@ -13,6 +13,7 @@ private:
     Positions positions;
     Orientations orientations;
     Scales scales;
+    Colors colors;
     Meshes meshes;
     int64_t totalEntitiesAdded;
 
@@ -38,6 +39,8 @@ public:
     Scales getScales();
 
     Meshes getMeshes();
+
+    Colors getColors();
 };
 
 
