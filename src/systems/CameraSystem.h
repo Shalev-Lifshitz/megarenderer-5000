@@ -7,6 +7,22 @@
 class CameraSystem {
 private:
     Camera camera;
+    glm::vec3 positiveX = glm::vec3(1, 0, 0);
+    glm::vec3 positiveY = glm::vec3(0, 1, 0);
+    glm::vec3 positiveZ = glm::vec3(0, 0, 1);
+
+    void moveCameraForward(float multiplier);
+
+    void moveCameraBackward(float multiplier);
+
+    void moveCameraRight(float multiplier);
+
+    void moveCameraLeft(float multiplier);
+
+    void moveCameraUp(float multiplier);
+
+    void moveCameraDown(float multiplier);
+
 public:
     explicit CameraSystem(int cameraViewAngle);
 
@@ -14,11 +30,17 @@ public:
 
     glm::vec3 getCameraPosition();
 
+    void setCameraPosition(glm::vec3 newCameraPosition);
+
     glm::vec3 getCameraOrientation();
+
+    void setCameraOrientation(const glm::vec2 &mousePosition);
 
     int getCameraViewAngle();
 
-    void setCameraOrientation(const glm::vec2 &mousePosition);
+    void performSanityChecks();
+
+    void printCameraInfo();
 };
 
 

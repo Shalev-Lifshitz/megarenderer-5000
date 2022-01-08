@@ -15,7 +15,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             std::cout << "SPHERE" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
-            scales[id] = 1;
+            scales[id] = glm::vec3(1);
             colors[id] = {0, 0, 255};
             meshes[id] = MeshGenerator("sphere");
             std::cout << "Finished." << std::endl;
@@ -24,7 +24,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             std::cout << "CUBE" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
-            scales[id] = 1;
+            scales[id] = glm::vec3(1);
             colors[id] = {255, 0, 0};
             meshes[id] = MeshGenerator("cube");
             std::cout << "Finished." << std::endl;
@@ -33,7 +33,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             std::cout << "TORUS" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
-            scales[id] = 1;
+            scales[id] = glm::vec3(1);
             colors[id] = {0, 255, 0};
             meshes[id] = MeshGenerator("torus");
             std::cout << "Finished." << std::endl;
@@ -42,16 +42,16 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             std::cout << "PYRAMID" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
-            scales[id] = 1;
+            scales[id] = glm::vec3(1);
             colors[id] = {255, 0, 255};
             meshes[id] = MeshGenerator("pyramid");
             std::cout << "Finished." << std::endl;
             break;
-        case AXES:
+        case AXES:  // TODO: Fix to origin, pointing to +X.
             std::cout << "AXES" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
-            scales[id] = 1;
+            scales[id] = glm::vec3(1);
             colors[id] = {0, 0, 0};
             meshes[id] = MeshGenerator("axes");
             std::cout << "Finished." << std::endl;
