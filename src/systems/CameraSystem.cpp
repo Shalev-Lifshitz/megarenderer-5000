@@ -22,11 +22,11 @@ void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
             updatedPosition = true;
             break;
         case 97: // 'a' - LEFT
-            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * -mult;;
+            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * mult;
             updatedPosition = true;
             break;
         case 100: // 'd' - RIGHT
-            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * mult;
+            positionUpdate = glm::normalize(glm::cross(cameraFront, cameraUp)) * -mult;
             updatedPosition = true;
             break;
         case 32: // 'SPACE' - UP
