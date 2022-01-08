@@ -3,6 +3,13 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext.hpp>
 
+glm::mat3x4 subtractVecFromMatrix(glm::mat3x4 mat, glm::vec4 vec) {
+    mat[0] = mat[0] - vec;
+    mat[1] = mat[1] - vec;
+    mat[2] = mat[2] - vec;
+    return mat;
+}
+
 void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
                    int x0, int y0, int x1, int y1, int x2, int y2, cv::Scalar_<double> color) {
     std::vector<cv::Point> pts = {cv::Point(x0, y0), cv::Point(x1, y1), cv::Point(x2, y2)};
@@ -63,6 +70,17 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
             glm::mat3x4 triPreProjected = performProjection(projectionMatrix, triBeforeProjection);
             glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, entityPosition, cameraPosition);
 
+//            // Apply scaling to tri
+//            glm::mat3x4 triScaled = scalingMatrix * tri;
+//
+//            // Apply modelToWorldMatrix to place tri in the world
+//            glm::mat3x4 triInWorld = modelToWorldMatrix * triScaled;
+//
+//            // Apply cameraMatrix to place the camera in the world
+//            glm::mat3x4 triAroundCamera = cameraMatrix * (subtractVecFromMatrix(triInWorld, cameraPosition));
+//
+//            // Project triangle onto screen
+//            glm::mat3x4 triProjected = performProjection(projectionMatrix, triAroundCamera);
 
             FillTriangles(image,
                           triProjected[0][0], triProjected[0][1],
