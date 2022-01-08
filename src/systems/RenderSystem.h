@@ -15,7 +15,7 @@ private:
 
     glm::mat4x4 getModelToWorldMatrix(glm::vec3 meshPosition);
 
-    glm::mat4x4 getCameraMatrix(float thetaX, float thetaY, float thetaZ);
+    glm::mat4x4 getCameraMatrix(glm::vec3 cameraOrientation);
 
     glm::mat4x4 getRotationMatrixAroundX(float theta);
 
