@@ -7,7 +7,7 @@ CameraSystem::CameraSystem(int cameraViewAngle)
         : camera(cameraViewAngle) {}
 
 void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
-    float multiplier = 0.05;
+    float multiplier = 1;
     switch (keycode) {
         case 119: // 'w' - FORWARD
             moveCameraForward(multiplier);

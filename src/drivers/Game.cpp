@@ -5,15 +5,10 @@
 #include "Game.h"
 
 void MouseCallback(int event, int x, int y, int flags, void *userdata) {
-//    if (event == cv::EVENT_LBUTTONDOWN) {
-//        std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-//    } else if (event == cv::EVENT_RBUTTONDOWN) {
-//        std::cout << "Right button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-//    } else if (event == cv::EVENT_MBUTTONDOWN) {
-//        std::cout << "Middle button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-//    } else if (event == cv::EVENT_MOUSEMOVE) {
-//        std::cout << "Mouse move over the window - position (" << x << ", " << y << ")" << std::endl;
-//    }
+//    Game game = (Game) userdata;
+    if (event == cv::EVENT_MOUSEMOVE) {
+
+    }
 }
 
 Game::Game(CameraSystem &cameraSystem1,
@@ -36,7 +31,7 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
     cv::resize(imageBackground, imageBackground, cv::Size(screenWidth, screenHeight));
 
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
-    cv::setMouseCallback("Display window", MouseCallback, NULL); // TODO: how can we get mousePosition from this
+    cv::setMouseCallback("Display window", MouseCallback, this); // TODO: how can we get mousePosition from this
 
     int key;
     std::unique_ptr<cv::Mat> image;
@@ -57,8 +52,12 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
         cameraSystem.updateCamera(key, glm::vec2(0, 0));
         entitySystem.updateGame(key);
     }
-
     return true;
 }
+
+void Game::recordMouseMovement(int x, int y) {
+    mousePosition = glm::vec2(x, y);
+}
+
 
 

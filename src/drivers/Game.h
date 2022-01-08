@@ -12,6 +12,7 @@ private:
     CameraSystem &cameraSystem;
     EntitySystem &entitySystem;
     RenderSystem &renderSystem;
+    glm::vec2 mousePosition;
 public:
     explicit Game(
             CameraSystem &cameraSystem1,
@@ -19,6 +20,8 @@ public:
             RenderSystem &renderSystem1);
 
     bool runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth);
+
+    void recordMouseMovement(int x, int y);
 };
 
 
