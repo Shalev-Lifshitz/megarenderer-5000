@@ -86,24 +86,21 @@ Colors EntitySystem::getColors() {
 }
 
 void EntitySystem::updateGame(int keycode) {
-    glm::vec3 position = {cameraSystem.getCameraPosition().x,
-                          cameraSystem.getCameraPosition().y,
-                          -cameraSystem.getCameraPosition().z};
     switch (keycode) {
         case 83: // 'S' - SPHERE
-            addEntity(SPHERE, position);
+            addEntity(SPHERE, cameraSystem.getCameraPosition());
             break;
         case 67: // 'C' - CUBE
-            addEntity(CUBE, position);
+            addEntity(CUBE, cameraSystem.getCameraPosition());
             break;
         case 84: // 'T' - TORUS
-            addEntity(TORUS, position);
+            addEntity(TORUS, cameraSystem.getCameraPosition());
             break;
         case 80: // 'P' - PYRAMID
-            addEntity(PYRAMID, position);
+            addEntity(PYRAMID, cameraSystem.getCameraPosition());
             break;
         case 65: // 'A' - AXES
-            addEntity(AXES, position);
+            addEntity(AXES, cameraSystem.getCameraPosition());
             break;
     }
 }
