@@ -39,6 +39,8 @@ public:
     int getCameraViewAngle();
 
     void performSanityChecks();
+
+    void printCameraInfo();
 };
 
 

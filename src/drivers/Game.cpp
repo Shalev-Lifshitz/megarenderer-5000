@@ -42,6 +42,9 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
     std::unique_ptr<cv::Mat> image;
     auto start = std::chrono::steady_clock::now();
     while (key != 27) {
+        cameraSystem.performSanityChecks();
+        cameraSystem.printCameraInfo();
+
         auto end = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
         image = renderSystem.renderScene(imageBackground, elapsed_time / 100);
@@ -49,9 +52,9 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
         cv::imshow("Display window", *image);
 
         key = cv::waitKey(1);
+
         // TODO: Need to use actual mouse position from MouseCallback, we need to figure that out.
         cameraSystem.updateCamera(key, glm::vec2(0, 0));
-        cameraSystem.performSanityChecks();
         entitySystem.updateGame(key);
     }
 
