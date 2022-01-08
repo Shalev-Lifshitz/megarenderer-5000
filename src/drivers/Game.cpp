@@ -49,15 +49,10 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
         cv::imshow("Display window", *image);
 
         key = cv::waitKey(1);
-//        std::cout << "Key pressed: " << key << std::endl;
         // TODO: Need to use actual mouse position from MouseCallback, we need to figure that out.
         cameraSystem.updateCamera(key, glm::vec2(0, 0));
+        cameraSystem.performSanityChecks();
         entitySystem.updateGame(key);
-//        std::cout
-//            << glm::to_string(cameraSystem.getCameraPosition())
-//            << " "
-//            << glm::to_string(cameraSystem.getCameraOrientation())
-//            << std::endl;
     }
 
     return true;
