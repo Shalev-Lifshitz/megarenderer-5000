@@ -3,10 +3,9 @@
 #include "LinearAlgebraMath.h"
 #include "glm/gtx/string_cast.hpp"
 #include "iostream"
+#include "glm/gtx/vector_angle.hpp"
 
 void TestLinearAlgebraMath::testSubtractVecFromMatrixColumnwise() {
-    LinearAlgebraMath math;
-
     auto mat = glm::mat3x4(1);
     auto vec = glm::vec4(0, 1, 0, 0);
 
@@ -15,7 +14,7 @@ void TestLinearAlgebraMath::testSubtractVecFromMatrixColumnwise() {
     expected[1][1] = 0;
     expected[2][1] = -1;
 
-    auto result = math.subtractVecFromMatrixColumnwise(mat, vec);
+    auto result = LinearAlgebraMath::subtractVecFromMatrixColumnwise(mat, vec);
 
     assert(result == expected);
 }
@@ -33,31 +32,48 @@ void TestLinearAlgebraMath::testRotateVec1OntoVec2() {
             glm::vec3(121, 156, 6888),
     };
 
-    auto epsilon = 0.00001;
+    // TODO: Count num sigfigs that are equal instead of after decimal points (lengthEpsilon)
+    //  since large numbers can be less accurate after decimal point (but may have
+    //  same number of equal sigfigs).
+    float lengthEpsilon = 0.01;
     for (glm::vec3 v1: vecs) {
         for (glm::vec3 v2: vecs) {
-            auto rotationMatrix = math.rotateVec1OntoVec2(v1, v2);
-            auto v1Transformed = rotationMatrix * v1;
+            auto rotationMatrix = LinearAlgebraMath::getMatrixToRotateAtoB(v1, v2);
+            auto v1Rotated = rotationMatrix * v1;
 
-//            std::cout << std::endl;
-//            std::cout << "v1: "<< glm::to_string(v1) << std::endl;
-//            std::cout << "Vec1Length: " << glm::length(v1) << std::endl;
-//            std::cout << "v2: " << glm::to_string(v2) << std::endl;
-//            std::cout << "rotationMatrix: " << glm::to_string(rotationMatrix) << std::endl;
-//            std::cout << "v1Transformed: " << glm::to_string(v1Transformed) << std::endl;
+            auto v1RotatedNormalized = glm::normalize(v1Rotated);
+            auto v2Normalized = glm::normalize(v2);
 
-            float diff = std::abs(glm::length(glm::normalize(v1Transformed) - glm::normalize(v2)));
-            assert(diff < epsilon);
+            bool printDebugInfo = false;
+            if (printDebugInfo) {
+                std::cout << std::endl;
+                std::cout << "rotationMatrix: " << glm::to_string(rotationMatrix) << std::endl;
+                std::cout << "v1: "<< glm::to_string(v1) << std::endl;
+                std::cout << "v1 length: " << glm::length(v1) << std::endl;
 
+                std::cout << "v2: " << glm::to_string(v2) << std::endl;
+                std::cout << "v2 length: " << glm::length(v2) << std::endl;
+                std::cout << "v2 normalized: " << glm::to_string(v2Normalized) << std::endl;
+
+                std::cout << "v1Rotated: " << glm::to_string(v1Rotated) << std::endl;
+                std::cout << "v1Rotated length: " << glm::length(v1Rotated) << std::endl;
+                std::cout << "v1Rotated normalized: " << glm::to_string(v1RotatedNormalized) << std::endl;
+            }
+
+            // We compare normalized versions of v1Rotated and v2 since they do not have to be the same length
+            assert(LinearAlgebraMath::equalsEstimate(v1RotatedNormalized, v2Normalized));
             // Verify that the matrix conserves vector length
-            for (glm::vec3 v3: vecs) {
-                auto v3Length = glm::length(v3);
+            assert(abs(glm::length(v1) - glm::length(v1Rotated)) < lengthEpsilon);
 
+            // Verify that the matrix conserves the length of other vectors
+            for (glm::vec3 v3: vecs) {
                 auto v3Transformed = rotationMatrix * v3;
-                auto v3TransformedLength = glm::length(v3Transformed);
+
+                float v3Length = glm::length(v3);
+                float v3TransformedLength = glm::length(v3Transformed);
 
                 float diffLength = std::abs(v3TransformedLength - v3Length);
-                assert(diffLength < epsilon);
+                assert(diffLength < lengthEpsilon);
             }
         }
     }
