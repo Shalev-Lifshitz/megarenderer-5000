@@ -4,26 +4,6 @@
 #include "../math/LinearAlgebraMath.h"
 
 
-void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
-                   int x0, int y0, int x1, int y1, int x2, int y2, cv::Scalar_<double> color) {
-    std::vector<cv::Point> pts = {cv::Point(x0, y0), cv::Point(x1, y1), cv::Point(x2, y2)};
-    cv::fillPoly(*imageBackground, pts, color);
-}
-
-void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour) {
-        if (imageBackground != nullptr) {
-            cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
-        } else {
-            std::cout << "Pointer to image is a null pointer!" << std::endl;
-        }
-    }
-
-void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
-                  int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
-    DrawLine(imageBackground, x0, y0, x1, y1, colour);
-    DrawLine(imageBackground, x1, y1, x2, y2, colour);
-    DrawLine(imageBackground, x2, y2, x0, y0, colour);
-}
 
 RenderSystem::RenderSystem(
         EntitySystem &entitySystem1,
@@ -37,6 +17,7 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
     std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
 
     auto thetaTime = 1.0f * elapsed_time;
+    int counter = 0;
 
     glm::vec3 cameraPosition = cameraSystem.getCameraPosition();
     glm::vec3 cameraOrientation = cameraSystem.getCameraOrientation();
@@ -91,14 +72,8 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
 //            // Project triangle onto screen
 //            glm::mat3x4 triProjected = performProjection(projectionMatrix, triAroundCamera);
 
-            FillTriangles(image,
-                          triProjected[0][0], triProjected[0][1],
-                          triProjected[1][0], triProjected[1][1],
-                          triProjected[2][0], triProjected[2][1],
-                          entityColor);
-            if(triProjected[0][2] < cameraSystem.getCameraPosition().z + 2 and triProjected[1][2] < cameraSystem.getCameraPosition().z + 2 and triProjected[2][2] < cameraSystem.getCameraPosition().z + 2) {
-                if(abs(triProjected[0][1] - cameraSystem.getCameraPosition().y) > 2 and abs(triProjected[1][1] - cameraSystem.getCameraPosition().y) > 2 and abs(triProjected[2][1] - cameraSystem.getCameraPosition().y) > 2) {
-                    if(abs(triProjected[0][0] - cameraSystem.getCameraPosition().x) > 2 and abs(triProjected[1][0] - cameraSystem.getCameraPosition().x) > 2 and abs(triProjected[2][0] - cameraSystem.getCameraPosition().x) > 2) {
+
+            if(triangleInView(triProjected, cameraPosition)) {
                 FillTriangles(image,
                               triProjected[0][0], triProjected[0][1],
                               triProjected[1][0], triProjected[1][1],
@@ -110,10 +85,31 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
                              triProjected[1][0], triProjected[1][1],
                              triProjected[2][0], triProjected[2][1],
                              0x0000);
-            }}}
+            }
         }
     }
     return image;
+}
+
+void RenderSystem::FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
+                                 int x0, int y0, int x1, int y1, int x2, int y2, const cv::Scalar_<double>& color) {
+    std::vector<cv::Point> pts = {cv::Point(x0, y0), cv::Point(x1, y1), cv::Point(x2, y2)};
+    cv::fillPoly(*imageBackground, pts, color);
+}
+
+void RenderSystem::DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour) {
+    if (imageBackground != nullptr) {
+        cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
+    } else {
+        std::cout << "Pointer to image is a null pointer!" << std::endl;
+    }
+}
+
+void RenderSystem::DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
+                                int x0, int y0, int x1, int y1, int x2, int y2, int colour) {
+    DrawLine(imageBackground, x0, y0, x1, y1, colour);
+    DrawLine(imageBackground, x1, y1, x2, y2, colour);
+    DrawLine(imageBackground, x2, y2, x0, y0, colour);
 }
 
 glm::mat3x4 RenderSystem::performProjection(glm::mat4x4 matProjection, glm::mat3x4 tri) {
@@ -123,10 +119,11 @@ glm::mat3x4 RenderSystem::performProjection(glm::mat4x4 matProjection, glm::mat3
     float w2 = glm::dot(tri[2], glm::row(matProjection, 3));
 
     // TODO: What to do when w is 0???
-    // TODO: Explain why abs fixed the inverse issue.
-    if (w0 != 0) { triProjected[0] /= abs(w0); }
-    if (w1 != 0) { triProjected[1] /= abs(w1); }
-    if (w2 != 0) { triProjected[2] /= abs(w2); }
+    //To fix the problem where models behind the camera were being inverted and re-rendered, we took the inverse.
+    //What the inverse does is prevent us from dividing by negative z value, when our z values becomes negative.
+    if (w0 != 0) { triProjected[0] /= w0; }
+    if (w1 != 0) { triProjected[1] /= w1; }
+    if (w2 != 0) { triProjected[2] /= w2; }
 
     return triProjected;
 }
@@ -199,12 +196,15 @@ glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshP
 
     glm::mat3x4 triAdjustedXY = triangle;
 
-    triAdjustedXY[0][0] += cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
-    triAdjustedXY[0][1] += cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
-    triAdjustedXY[1][0] += cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
-    triAdjustedXY[1][1] += cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
-    triAdjustedXY[2][0] += cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
-    triAdjustedXY[2][1] += cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
+
+    // Maybe divide by camera z axis so that it moves smaller distances in the x and y axis
+    // when the object is further away
+    triAdjustedXY[0][0] += -cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
+    triAdjustedXY[0][1] += -cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
+    triAdjustedXY[1][0] += -cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
+    triAdjustedXY[1][1] += -cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
+    triAdjustedXY[2][0] += -cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
+    triAdjustedXY[2][1] += -cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
 
 
     triAdjustedXY[0][0] *= 0.5f * (float) screenWidth;
@@ -220,9 +220,64 @@ glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshP
 glm::mat3x4 RenderSystem::adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
 
     glm::mat3x4 triAdjustedZ = triangle;
-    triAdjustedZ[0][2] = triangle[0][2] + 2.0f + cameraSystem.getCameraPosition().z;
-    triAdjustedZ[1][2] = triangle[1][2] + 2.0f + cameraSystem.getCameraPosition().z;
-    triAdjustedZ[2][2] = triangle[2][2] + 2.0f + cameraSystem.getCameraPosition().z;
+    triAdjustedZ[0][2] = triangle[0][2] + 2.0f - cameraSystem.getCameraPosition().z;
+    triAdjustedZ[1][2] = triangle[1][2] + 2.0f - cameraSystem.getCameraPosition().z;
+    triAdjustedZ[2][2] = triangle[2][2] + 2.0f - cameraSystem.getCameraPosition().z;
 
     return triAdjustedZ;
 }
+
+// Makes sure that a model is not rendered when to the right or left the screen limits
+bool RenderSystem::cullingX(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
+    bool xInView = false;
+    xInView = (abs(triangle[0][0] - cameraPosition.x) > 2 and
+               abs(triangle[1][0] - cameraPosition.x) > 2 and
+               abs(triangle[2][0] - cameraPosition.x) > 2);
+
+    return xInView;
+
+
+}
+
+// Makes sure that a model is not rendered when above or below the screen limits
+bool RenderSystem::cullingY(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
+    bool yInView = false;
+    yInView = (abs(triangle[0][1] - cameraPosition.y) > 2 and
+               abs(triangle[1][1] - cameraPosition.y) > 2 and
+               abs(triangle[2][1] - cameraPosition.y) > 2);
+
+    return yInView;
+}
+
+// Makes sure that a model is not rendered when closer than the near sight limit
+bool RenderSystem::cullingZNear(glm::mat3x4 triangle, glm::vec3 cameraPosition){
+    bool zNearInView = false;
+    zNearInView = ( triangle[0][2] + 1 > cameraPosition.z and
+             triangle[1][2] + 1> cameraPosition.z and
+             triangle[2][2] + 1> cameraPosition.z);
+
+    return zNearInView;
+}
+
+// Makes sure that a model is not rendered when further than the far sight limit
+bool RenderSystem::cullingZFar(glm::mat3x4 triangle, glm::vec3 cameraPosition){
+    bool zFarInView = false;
+    zFarInView = ( triangle[0][2] + 1 > 2.02 and
+                triangle[1][2] + 1 > 2.02 and
+                triangle[2][2] + 1 > 2.02 );
+
+    return zFarInView;
+}
+
+// Checks that a specific triangle making up a model is within the screens
+// x, y and z limits
+bool RenderSystem::triangleInView(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
+    bool culling = false;
+    culling = (cullingX(triangle, cameraPosition) and
+               cullingY(triangle, cameraPosition) and
+            cullingZNear(triangle, cameraPosition) and
+            cullingZFar(triangle, cameraPosition));
+
+    return culling;
+}
+
