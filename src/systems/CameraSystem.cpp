@@ -39,7 +39,7 @@ void CameraSystem::updateCameraOrientation() {
     if (mouseIsBeingDragged) {
         // Compute orientation change vec that lies in the plane tangential to the orientation vector
         glm::vec2 mousePositionDiff = mousePositionCurr - mousePositionPrev;
-        glm::vec2 orientationChange2D = mousePositionDiff;
+        glm::vec2 orientationChange2D = -mousePositionDiff;
 
         // Don't update orientation if orientationChange2D is the zero vector
         if (LinearAlgebraMath::equalsEstimate(orientationChange2D, glm::vec2(0))) {

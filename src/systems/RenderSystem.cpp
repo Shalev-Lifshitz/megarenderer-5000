@@ -25,6 +25,12 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
     // These matrices can be defined outside of the loop
     glm::mat4x4 projectionMatrix = getProjectionMatrix();
     glm::mat4x4 cameraMatrix = LinearAlgebraMath::getMatrixToRotateAtoB(glm::vec3(0, 0, 1), cameraOrientation);
+    cameraMatrix = glm::translate(cameraMatrix, -cameraPosition);
+
+    // TODO: How come glm::translate works but this doesn't
+//    cameraMatrix[3][0] = -cameraPosition.x;
+//    cameraMatrix[3][1] = -cameraPosition.y;
+//    cameraMatrix[3][2] = -cameraPosition.z;
 
     // TODO Orientation of mesh in model coords (before anything else).
     for (auto const &pair: entitySystem.getMeshes()) {
@@ -43,49 +49,46 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
         bool printMatrices = false;
         if (printMatrices) {
             std::cout << std::endl;
-            std::cout << "projectionMatrix: " << glm::to_string(projectionMatrix) << std::endl;
-            std::cout << "cameraMatrix: " << glm::to_string(cameraMatrix) << std::endl;
-            std::cout << "modelToWorldMatrix: " << glm::to_string(modelToWorldMatrix) << std::endl;
             std::cout << "scalingMatrix: " << glm::to_string(scalingMatrix) << std::endl;
+            std::cout << "modelToWorldMatrix: " << glm::to_string(modelToWorldMatrix) << std::endl;
+            std::cout << "cameraMatrix: " << glm::to_string(cameraMatrix) << std::endl;
+            std::cout << "projectionMatrix: " << glm::to_string(projectionMatrix) << std::endl;
             std::cout << std::endl;
         }
 
         for (glm::mat3x4 tri: entityMesh) {
-            // Order of operations:
-            // PerspectiveProjection * CameraRotation * ModelToWorld * Scaling
+            glm::mat3x4 tri1 = cameraMatrix * cameraMatrix * modelToWorldMatrix * scalingMatrix * tri;
+            glm::mat3x4 triProjected = projectionMatrix * tri1;
 
-            glm::mat3x4 triTranslated = adjustPositionZ(tri, entityPosition, cameraPosition);
-            glm::mat4x4 matBeforeProjection = cameraMatrix * modelToWorldMatrix * scalingMatrix;
-            glm::mat3x4 triBeforeProjection = matBeforeProjection * triTranslated;
-            glm::mat3x4 triPreProjected = performProjection(projectionMatrix, triBeforeProjection);
-            glm::mat3x4 triProjected = adjustPositionXY(triPreProjected, entityPosition, cameraPosition);
+            triProjected[0] /= abs(triProjected[0][3]);
+            triProjected[1] /= abs(triProjected[1][3]);
+            triProjected[2] /= abs(triProjected[2][3]);
 
-//            // Apply scaling to tri
-//            glm::mat3x4 triScaled = scalingMatrix * tri;
-//
-//            // Apply modelToWorldMatrix to place tri in the world
-//            glm::mat3x4 triInWorld = modelToWorldMatrix * triScaled;
-//
-//            // Apply cameraMatrix to place the camera in the world
-//            glm::mat3x4 triAroundCamera = cameraMatrix * (subtractVecFromMatrixColumnwise(triInWorld, cameraPosition));
-//
-//            // Project triangle onto screen
-//            glm::mat3x4 triProjected = performProjection(projectionMatrix, triAroundCamera);
+            triProjected[0][0] += 1;
+            triProjected[0][1] += 1;
+            triProjected[1][0] += 1;
+            triProjected[1][1] += 1;
+            triProjected[2][0] += 1;
+            triProjected[2][1] += 1;
 
+            triProjected[0][0] *= 0.5f * (float) screenWidth;
+            triProjected[0][1] *= 0.5f * (float) screenHeight;
+            triProjected[1][0] *= 0.5f * (float) screenWidth;
+            triProjected[1][1] *= 0.5f * (float) screenHeight;
+            triProjected[2][0] *= 0.5f * (float) screenWidth;
+            triProjected[2][1] *= 0.5f * (float) screenHeight;
 
-            if(triangleInView(triProjected, cameraPosition)) {
-                FillTriangles(image,
-                              triProjected[0][0], triProjected[0][1],
-                              triProjected[1][0], triProjected[1][1],
-                              triProjected[2][0], triProjected[2][1],
-                              entityColor);
+//            FillTriangles(image,
+//                          triProjected[0][0], triProjected[0][1],
+//                          triProjected[1][0], triProjected[1][1],
+//                          triProjected[2][0], triProjected[2][1],
+//                          entityColor);
 
-                DrawTriangle(image,
-                             triProjected[0][0], triProjected[0][1],
-                             triProjected[1][0], triProjected[1][1],
-                             triProjected[2][0], triProjected[2][1],
-                             0x0000);
-            }
+            DrawTriangle(image,
+                         triProjected[0][0], triProjected[0][1],
+                         triProjected[1][0], triProjected[1][1],
+                         triProjected[2][0], triProjected[2][1],
+                         0x0000);
         }
     }
     return image;
@@ -129,11 +132,14 @@ glm::mat3x4 RenderSystem::performProjection(glm::mat4x4 matProjection, glm::mat3
 }
 
 glm::mat4x4 RenderSystem::getProjectionMatrix() {
-    float zNear = 0.1;
-    float zFar = 1000;
 
-    float fovX = 90;
-    float fovY = 90;
+//    glm::mat4x4 mat = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+
+    float zNear = 0.1;
+    float zFar = 100;
+
+    float fovX = 45;
+    float fovY = 45;
 
     glm::mat4x4 mat(0);
     mat[0][0] = 1 / tan(fovX / 2);
@@ -206,23 +212,15 @@ glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshP
     triAdjustedXY[2][0] += -cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
     triAdjustedXY[2][1] += -cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
 
-
-    triAdjustedXY[0][0] *= 0.5f * (float) screenWidth;
-    triAdjustedXY[0][1] *= 0.5f * (float) screenHeight;
-    triAdjustedXY[1][0] *= 0.5f * (float) screenWidth;
-    triAdjustedXY[1][1] *= 0.5f * (float) screenHeight;
-    triAdjustedXY[2][0] *= 0.5f * (float) screenWidth;
-    triAdjustedXY[2][1] *= 0.5f * (float) screenHeight;
-
     return triAdjustedXY;
 }
 
 glm::mat3x4 RenderSystem::adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
 
     glm::mat3x4 triAdjustedZ = triangle;
-    triAdjustedZ[0][2] = triangle[0][2] + 2.0f - cameraSystem.getCameraPosition().z;
-    triAdjustedZ[1][2] = triangle[1][2] + 2.0f - cameraSystem.getCameraPosition().z;
-    triAdjustedZ[2][2] = triangle[2][2] + 2.0f - cameraSystem.getCameraPosition().z;
+    triAdjustedZ[0][2] = triangle[0][2] - cameraSystem.getCameraPosition().z;
+    triAdjustedZ[1][2] = triangle[1][2] - cameraSystem.getCameraPosition().z;
+    triAdjustedZ[2][2] = triangle[2][2] - cameraSystem.getCameraPosition().z;
 
     return triAdjustedZ;
 }
@@ -278,6 +276,6 @@ bool RenderSystem::triangleInView(glm::mat3x4 triangle, glm::vec3 cameraPosition
             cullingZNear(triangle, cameraPosition) and
             cullingZFar(triangle, cameraPosition));
 
-    return culling;
+    return true;
 }
 
