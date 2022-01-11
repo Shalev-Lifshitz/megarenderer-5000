@@ -26,26 +26,36 @@ glm::mat3x3 LinearAlgebraMath::getMatrixToRotateAtoB(glm::vec3 a, glm::vec3 b) {
     return rotationMatrix;
 }
 
+bool LinearAlgebraMath::equalsEstimate(float a, float b) {
+    return std::abs(a - b) < epsilon;
+}
+
+bool LinearAlgebraMath::equalsEstimate(glm::vec2 a, glm::vec2 b) {
+    auto elem0IsEqual = equalsEstimate(a[0], b[0]);
+    auto elem1IsEqual = equalsEstimate(a[1], b[1]);
+    return elem0IsEqual and elem1IsEqual;
+}
+
 bool LinearAlgebraMath::equalsEstimate(glm::vec3 a, glm::vec3 b) {
-    auto elem0IsEqual = std::abs(a[0] - b[0]) < epsilon;
-    auto elem1IsEqual = std::abs(a[1] - b[1]) < epsilon;
-    auto elem2IsEqual = std::abs(a[2] - b[2]) < epsilon;
+    auto elem0IsEqual = equalsEstimate(a[0], b[0]);
+    auto elem1IsEqual = equalsEstimate(a[1], b[1]);
+    auto elem2IsEqual = equalsEstimate(a[2], b[2]);
     return elem0IsEqual and elem1IsEqual and elem2IsEqual;
 }
 
 bool LinearAlgebraMath::equalsEstimate(glm::vec4 a, glm::vec4 b) {
-    auto elem0IsEqual = std::abs(a[0] - b[0]) < epsilon;
-    auto elem1IsEqual = std::abs(a[1] - b[1]) < epsilon;
-    auto elem2IsEqual = std::abs(a[2] - b[2]) < epsilon;
-    auto elem3IsEqual = std::abs(a[3] - b[3]) < epsilon;
+    auto elem0IsEqual = equalsEstimate(a[0], b[0]);
+    auto elem1IsEqual = equalsEstimate(a[1], b[1]);
+    auto elem2IsEqual = equalsEstimate(a[2], b[2]);
+    auto elem3IsEqual = equalsEstimate(a[3], b[3]);
     return elem0IsEqual and elem1IsEqual and elem2IsEqual and elem3IsEqual;
 }
 
 bool LinearAlgebraMath::equalsEstimate(glm::quat a, glm::quat b) {
-    auto elem0IsEqual = std::abs(a[0] - b[0]) < epsilon;
-    auto elem1IsEqual = std::abs(a[1] - b[1]) < epsilon;
-    auto elem2IsEqual = std::abs(a[2] - b[2]) < epsilon;
-    auto elem3IsEqual = std::abs(a[3] - b[3]) < epsilon;
+    auto elem0IsEqual = equalsEstimate(a[0], b[0]);
+    auto elem1IsEqual = equalsEstimate(a[1], b[1]);
+    auto elem2IsEqual = equalsEstimate(a[2], b[2]);
+    auto elem3IsEqual = equalsEstimate(a[3], b[3]);
     return elem0IsEqual and elem1IsEqual and elem2IsEqual and elem3IsEqual;
 }
 

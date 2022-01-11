@@ -14,6 +14,10 @@ public:
      */
     static glm::mat3x3 getMatrixToRotateAtoB(glm::vec3 a, glm::vec3 b);
 
+    static bool equalsEstimate(float a, float b);
+
+    static bool equalsEstimate(glm::vec2 a, glm::vec2 b);
+
     static bool equalsEstimate(glm::vec3 a, glm::vec3 b);
 
     static bool equalsEstimate(glm::vec4 a, glm::vec4 b);
