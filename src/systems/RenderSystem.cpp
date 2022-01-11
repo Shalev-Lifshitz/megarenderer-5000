@@ -276,6 +276,6 @@ bool RenderSystem::triangleInView(glm::mat3x4 triangle, glm::vec3 cameraPosition
             cullingZNear(triangle, cameraPosition) and
             cullingZFar(triangle, cameraPosition));
 
-    return true;
+    return culling;
 }
 
