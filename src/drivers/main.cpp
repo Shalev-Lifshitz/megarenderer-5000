@@ -9,11 +9,11 @@ int main(int argc, char **argv) {
         TestLinearAlgebraMath::testAll();
     } else {
         std::string backgroundImagePath = "./images/3d-mesh.jpg";
-        int cameraViewAngle = 90;
+        int cameraViewAngle = 60;
         int screenHeight = 800;
         int screenWidth = 800;
 
-        CameraSystem cameraSystem(cameraViewAngle, screenHeight, screenWidth);
+        CameraSystem cameraSystem(cameraViewAngle);
         EntitySystem entitySystem(cameraSystem);
         RenderSystem renderSystem(entitySystem, cameraSystem, screenHeight, screenWidth);
         Game game(cameraSystem, entitySystem, renderSystem);

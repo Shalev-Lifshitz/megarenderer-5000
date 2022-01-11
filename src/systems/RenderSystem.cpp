@@ -43,7 +43,7 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, lon
 
     // These matrices can be defined outside of the loop
     glm::mat4x4 projectionMatrix = getProjectionMatrix();
-    glm::mat4x4 cameraMatrix = getCameraMatrix(cameraOrientation);
+    glm::mat4x4 cameraMatrix = LinearAlgebraMath::getMatrixToRotateAtoB(glm::vec3(0, 0, 1), cameraOrientation);
 
     // TODO Orientation of mesh in model coords (before anything else).
     for (auto const &pair: entitySystem.getMeshes()) {

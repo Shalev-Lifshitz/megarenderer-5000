@@ -1,38 +1,69 @@
 #include <iostream>
 #include "CameraSystem.h"
 #include "glm/gtx/string_cast.hpp"
+#include <opencv2/opencv.hpp>
+#include "../math/LinearAlgebraMath.h"
 
 // TODO: Check that orientation is always a unit vector
-CameraSystem::CameraSystem(int cameraViewAngle)
-        : camera(cameraViewAngle) {}
+CameraSystem::CameraSystem(int cameraViewAngle) : camera(cameraViewAngle) {}
 
-void CameraSystem::updateCamera(int keycode, glm::vec2 mousePosition) {
-    float multiplier = 1;
-    switch (keycode) {
-        case 119: // 'w' - FORWARD
-            moveCameraForward(multiplier);
-            break;
-        case 115: // 's' - BACKWARD
-            moveCameraBackward(multiplier);
-            break;
-        case 97: // 'a' - LEFT
-            moveCameraLeft(multiplier);
-            break;
-        case 100: // 'd' - RIGHT
-            moveCameraRight(multiplier);
-            break;
-        case 32: // 'SPACE' - UP
-            moveCameraUp(multiplier);
-            break;
-        case 9: // 'TAB' - DOWN
-            moveCameraDown(multiplier);
-            break;
-    }
-
-    // TODO: Update camera orientation
-    // setCameraOrientation(mousePosition);
+void CameraSystem::updateCamera(int keycode) {
+    updateCameraPosition(keycode);
+    updateCameraOrientation();
 }
 
+void CameraSystem::updateCameraPosition(int keycode) {
+    switch (keycode) {
+        case 119: // 'w' - FORWARD
+            moveCameraForward(positionSensitivity);
+            break;
+        case 115: // 's' - BACKWARD
+            moveCameraBackward(positionSensitivity);
+            break;
+        case 97: // 'a' - LEFT
+            moveCameraLeft(positionSensitivity);
+            break;
+        case 100: // 'd' - RIGHT
+            moveCameraRight(positionSensitivity);
+            break;
+        case 32: // 'SPACE' - UP
+            moveCameraUp(positionSensitivity);
+            break;
+        case 9: // 'TAB' - DOWN
+            moveCameraDown(positionSensitivity);
+            break;
+    }
+}
+
+void CameraSystem::updateCameraOrientation() {
+    if (mouseIsBeingDragged) {
+        // Compute orientation change vec that lies in the plane tangential to the orientation vector
+        glm::vec2 mousePositionDiff = mousePositionCurr - mousePositionPrev;
+        glm::vec2 orientationChange2D = mousePositionDiff;
+
+        // Don't update orientation if orientationChange2D is the zero vector
+        if (LinearAlgebraMath::equalsEstimate(orientationChange2D, glm::vec2(0))) {
+            return;
+        }
+
+        // Compute the matrix which rotates the z-axis to align with the orientation vector
+        glm::mat3x3 rotationMatrix = LinearAlgebraMath::getMatrixToRotateAtoB(positiveZ, getCameraOrientation());
+
+        // Compute basis vector in the plane tangential to the orientation vector
+        glm::vec3 positiveXInPlane = (rotationMatrix * positiveX) + getCameraOrientation();
+        glm::vec3 positiveYInPlane = (rotationMatrix * positiveY) + getCameraOrientation();
+
+        // Traverse along the tangential plane in the direction of orientationChange2D
+        // The traversal is relative to the magnitude of orientationChange2D and orientationSensitivity
+        auto xChangeInPlane = orientationChange2D.x * positiveXInPlane;
+        auto yChangeInPlane = orientationChange2D.y * positiveYInPlane;
+        auto changeInPlane = orientationSensitivity * (xChangeInPlane + yChangeInPlane);
+        auto newOrientationInPlane = getCameraOrientation() + changeInPlane;
+        glm::vec3 newOrientationOnUnitSphere = glm::normalize(newOrientationInPlane);
+        setCameraOrientation(newOrientationOnUnitSphere);
+        performSanityChecks();
+    }
+}
 
 glm::vec3 CameraSystem::getCameraPosition() {
     return camera.getPosition();
@@ -46,25 +77,8 @@ glm::vec3 CameraSystem::getCameraOrientation() {
     return camera.getOrientation();
 }
 
-void CameraSystem::setCameraOrientation(const glm::vec2 &mousePosition) {
-    // adding constants to change later (might be picture specific currently?)
-    float xScreenMidpoint = 500;
-    float yScreenMidpoint = 327.5;
-    float movementScalar = 10;
-
-    // defined area at the centre of the screen where the cursor does not move the camera orientation
-    bool xPosNeutral = 400 < mousePosition[0] && mousePosition[0] < 600;
-    bool yPosNeutral = 277 < mousePosition[1] && mousePosition[1] < 377;
-    // when the cursor is in the centre of the screen.
-    if (xPosNeutral && yPosNeutral) {
-        std::cout << "NO ORIENTATION UPDATE";
-    } else {
-        // we want to move the orientation
-        // calculate norm of vector with origin at screen midpoint
-        float xDist = std::abs(mousePosition[0] - xScreenMidpoint);
-        float yDist = std::abs(mousePosition[1] - yScreenMidpoint);
-        std::cout << "ORIENTATION UPDATED BY (" << xDist << ", " << yDist << ")";
-    }
+void CameraSystem::setCameraOrientation(glm::vec3 newCameraOrientation) {
+    camera.setOrientation(newCameraOrientation);
 }
 
 int CameraSystem::getCameraViewAngle() {
@@ -109,7 +123,8 @@ void CameraSystem::moveCameraDown(float multiplier) {
 
 void CameraSystem::performSanityChecks() {
     // Check that camera orientation vector is a unit vector
-    assert(glm::length(getCameraOrientation()) == 1);
+    float orientationLength = glm::length(getCameraOrientation());
+    assert(LinearAlgebraMath::equalsEstimate(orientationLength, 1));
 }
 
 void CameraSystem::printCameraInfo() {
@@ -119,3 +134,22 @@ void CameraSystem::printCameraInfo() {
     std::cout << std::endl;
 }
 
+// TODO: Why does rotation continue when I stop moving during a drag?
+void CameraSystem::recordMouseEvent(int event, int x, int y, int flags) {
+    if (event == cv::EVENT_LBUTTONDOWN) { // Start a drag
+        mouseIsBeingDragged = true;
+
+        // mousePositionCurr and mousePositionPrev should be current position
+        // at the start of a drag since we want a no-op when we first click.
+        mousePositionCurr = glm::vec2(x, y);
+        mousePositionPrev = mousePositionCurr;
+    } else if (event == cv::EVENT_LBUTTONUP) { // End a drag
+        mouseIsBeingDragged = false;
+    } else if (event == cv::EVENT_MOUSEMOVE) {
+        if (mouseIsBeingDragged) {
+            // If we are in the middle of a drag, update prev position and set new curr.
+            mousePositionPrev = mousePositionCurr;
+            mousePositionCurr = glm::vec2(x, y);
+        }
+    }
+}

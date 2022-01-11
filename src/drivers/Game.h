@@ -21,7 +21,7 @@ public:
 
     bool runGameLoop(std::string backgroundImagePath, int screenHeight, int screenWidth);
 
-    void recordMouseMovement(int x, int y);
+    void recordMouseEvent(int event, int x, int y, int flags);
 };
 
 

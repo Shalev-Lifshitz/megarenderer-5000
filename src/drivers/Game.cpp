@@ -5,10 +5,8 @@
 #include "Game.h"
 
 void MouseCallback(int event, int x, int y, int flags, void *userdata) {
-//    Game game = (Game) userdata;
-    if (event == cv::EVENT_MOUSEMOVE) {
-
-    }
+    Game *game = static_cast<Game*>(userdata);
+    game->recordMouseEvent(event, x, y, flags);
 }
 
 Game::Game(CameraSystem &cameraSystem1,
@@ -31,14 +29,19 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
     cv::resize(imageBackground, imageBackground, cv::Size(screenWidth, screenHeight));
 
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
-    cv::setMouseCallback("Display window", MouseCallback, this); // TODO: how can we get mousePosition from this
+    cv::setMouseCallback("Display window", MouseCallback, this);
 
     int key;
     std::unique_ptr<cv::Mat> image;
     auto start = std::chrono::steady_clock::now();
+    bool printDebugInfo = false;
     while (key != 27) {
         cameraSystem.performSanityChecks();
-        cameraSystem.printCameraInfo();
+
+        if (printDebugInfo) {
+            cameraSystem.printCameraInfo();
+            std::cout << "Mouse Position: " << glm::to_string(mousePosition) << std::endl;
+        }
 
         auto end = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -48,16 +51,14 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
 
         key = cv::waitKey(1);
 
-        // TODO: Need to use actual mouse position from MouseCallback, we need to figure that out.
-        cameraSystem.updateCamera(key, glm::vec2(0, 0));
+        cameraSystem.updateCamera(key);
         entitySystem.updateGame(key);
     }
     return true;
 }
 
-void Game::recordMouseMovement(int x, int y) {
-    mousePosition = glm::vec2(x, y);
+void Game::recordMouseEvent(int event, int x, int y, int flags) {
+    cameraSystem.recordMouseEvent(event, x, y, flags);
 }
-
 
 
