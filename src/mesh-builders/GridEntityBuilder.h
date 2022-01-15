@@ -13,17 +13,17 @@ private:
     glm::mat3x4 genLineZ(float length, glm::vec3 center);
 
     void buildXLines(EntitySystem &entitySystem, int boxSize,
-                     glm::vec3 position, glm::vec3 orientation, glm::vec3 scale);
+                     Position position, Orientation orientation, Scale scale);
 
     void buildYLines(EntitySystem &entitySystem, int boxSize,
-                     glm::vec3 position, glm::vec3 orientation, glm::vec3 scale);
+                     Position position, Orientation orientation, Scale scale);
 
     void buildZLines(EntitySystem &entitySystem, int boxSize,
-                     glm::vec3 position, glm::vec3 orientation, glm::vec3 scale);
+                     Position position, Orientation orientation, Scale scale);
 
 public:
-    void buildEntity(EntitySystem &entitySystem, glm::vec3 position,
-                     glm::vec3 orientation, glm::vec3 scale) override;
+    void buildEntity(EntitySystem &entitySystem, Position position,
+                     Orientation orientation, Scale scale) override;
 };
 
 
