@@ -21,26 +21,28 @@ private:
 
 public:
     enum Entity {
-        SPHERE, CUBE, TORUS, PYRAMID, AXES
+        SPHERE, CUBE, TORUS, PYRAMID, AXES, GRID
     };
 
     explicit EntitySystem(CameraSystem &cameraSystem1);
 
     void updateGame(int keycode);
 
+    EntityID getNewEntityID();
+
     void addEntity(Entity entity, glm::vec3 position);
 
     void removeEntity(EntityID id);
 
-    Positions getPositions();
+    Positions *getPositions();
 
-    Orientations getOrientations();
+    Orientations *getOrientations();
 
-    Scales getScales();
+    Scales *getScales();
 
-    Meshes getMeshes();
+    Meshes *getMeshes();
 
-    Colors getColors();
+    Colors *getColors();
 };
 
 

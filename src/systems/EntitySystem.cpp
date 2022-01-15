@@ -1,15 +1,17 @@
 #include "EntitySystem.h"
 #include "../external-libraries/stl_reader.h"
+#include "../mesh-builders/GridEntityBuilder.h"
 
 EntitySystem::EntitySystem(CameraSystem &cameraSystem1)
         : cameraSystem(cameraSystem1) {}
 
-void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
-    // Obtain new entity ID
+EntityID EntitySystem::getNewEntityID() {
     totalEntitiesAdded++;
     EntityID id = totalEntitiesAdded;
+}
 
-    // TODO: Fill this with real code. Also, use builders?
+void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
+    EntityID id = totalEntitiesAdded;
     switch (entity) {
         case SPHERE:
             std::cout << "SPHERE" << std::endl;
@@ -56,6 +58,14 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             meshes[id] = MeshGenerator("axes");
             std::cout << "Finished." << std::endl;
             break;
+        case GRID:
+            std::cout << "GRID" << std::endl;
+            GridEntityBuilder gridEntityBuilder;
+            auto zeroVec = glm::vec3(0);
+            auto orientation = glm::vec3(1, 0, 0); // TODO: ???
+            gridEntityBuilder.buildEntity(*this, zeroVec, orientation, zeroVec);
+            std::cout << "Finished." << std::endl;
+            break;
     }
 }
 
@@ -65,24 +75,24 @@ void EntitySystem::removeEntity(EntityID id) {
     meshes.erase(id);
 }
 
-Positions EntitySystem::getPositions() {
-    return positions;
+Positions *EntitySystem::getPositions() {
+    return &positions;
 }
 
-Orientations EntitySystem::getOrientations() {
-    return orientations;
+Orientations *EntitySystem::getOrientations() {
+    return &orientations;
 }
 
-Meshes EntitySystem::getMeshes() {
-    return meshes;
+Meshes *EntitySystem::getMeshes() {
+    return &meshes;
 }
 
-Scales EntitySystem::getScales() {
-    return scales;
+Scales *EntitySystem::getScales() {
+    return &scales;
 }
 
-Colors EntitySystem::getColors() {
-    return colors ;
+Colors *EntitySystem::getColors() {
+    return &colors;
 }
 
 void EntitySystem::updateGame(int keycode) {
@@ -101,6 +111,9 @@ void EntitySystem::updateGame(int keycode) {
             break;
         case 65: // 'A' - AXES
             addEntity(AXES, glm::vec3(0));
+            break;
+        case 71: // 'G' - GRID
+            addEntity(GRID, glm::vec3(0));
             break;
     }
 }
