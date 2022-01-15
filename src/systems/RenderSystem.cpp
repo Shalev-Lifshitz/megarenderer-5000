@@ -29,36 +29,41 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
 //    cameraMatrix[3][2] = -cameraPosition.z;
 
     // TODO Orientation of mesh in model coords (before anything else).
-    for (auto const &pair: *entitySystem.getMeshes()) {
+    Meshes::const_iterator meshIter;
+    for (meshIter = entitySystem.getMeshesIterBegin(); meshIter != entitySystem.getMeshesIterEnd(); meshIter++) {
         // Get entity components from entity system
-        EntityID id = pair.first;
-        std::vector<glm::mat3x4> entityMesh = pair.second;
-        glm::vec3 entityPosition = (*entitySystem.getPositions()).at(id);
-        glm::vec3 entityOrientation = (*entitySystem.getOrientations()).at(id);
-        glm::vec3 entityScale = (*entitySystem.getScales()).at(id);
-        cv::Scalar_<double> entityColor = (*entitySystem.getColors()).at(id);
+        EntityID id = meshIter->first;
+        Mesh entityMesh = meshIter->second;
+        Position entityPosition = entitySystem.getPositionWithID(id);
+        Orientation entityOrientation = entitySystem.getOrientationWithID(id);
+        Scale entityScale = entitySystem.getScaleWithID(id);
+        Color entityColor = entitySystem.getColorWithID(id);
 
         // These matrices need entity info to define
         glm::mat4x4 modelToWorldMatrix = getModelToWorldMatrix(entityPosition);
         glm::mat4x4 scalingMatrix = getScalingMatrix(entityScale);
+        glm::mat4x4 finalMatrix = projectionMatrix * cameraMatrix * cameraMatrix * modelToWorldMatrix * scalingMatrix;
 
-        bool printMatrices = false;
+        bool printMatrices = true;
         if (printMatrices) {
             std::cout << std::endl;
             std::cout << "scalingMatrix: " << glm::to_string(scalingMatrix) << std::endl;
             std::cout << "modelToWorldMatrix: " << glm::to_string(modelToWorldMatrix) << std::endl;
             std::cout << "cameraMatrix: " << glm::to_string(cameraMatrix) << std::endl;
             std::cout << "projectionMatrix: " << glm::to_string(projectionMatrix) << std::endl;
+            std::cout << "finalMatrix: " << glm::to_string(finalMatrix) << std::endl;
             std::cout << std::endl;
         }
 
-        glm::mat4x4 finalMatrix = projectionMatrix * cameraMatrix * cameraMatrix * modelToWorldMatrix * scalingMatrix;
         for (glm::mat3x4 tri: entityMesh) {
             glm::mat3x4 triFinal = finalMatrix * tri;
 
-            triFinal[0] /= abs(triFinal[0][3]);
-            triFinal[1] /= abs(triFinal[1][3]);
-            triFinal[2] /= abs(triFinal[2][3]);
+            float w0 = triFinal[0][3];
+            float w1 = triFinal[1][3];
+            float w2 = triFinal[2][3];
+            if (w0 != 0) {triFinal[0] /= abs(w0); }
+            if (w1 != 0) {triFinal[1] /= abs(w1); }
+            if (w2 != 0) {triFinal[2] /= abs(w2); }
 
             triFinal[0][0] += 1;
             triFinal[0][1] += 1;
@@ -92,14 +97,14 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
 
 void RenderSystem::FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
                                  int x0, int y0, int x1, int y1, int x2, int y2,
-                                 const cv::Scalar_<double> &color) {
+                                 const Color &color) {
     std::vector<cv::Point> pts = {cv::Point(x0, y0), cv::Point(x1, y1), cv::Point(x2, y2)};
     cv::fillPoly(*imageBackground, pts, color);
 }
 
 void RenderSystem::DrawLine(std::unique_ptr<cv::Mat> &imageBackground,
                             int x0, int y0, int x1, int y1,
-                            const cv::Scalar_<double> &colour) {
+                            const Color &colour) {
     if (imageBackground != nullptr) {
         cv::line(*imageBackground, {x0, y0}, {x1, y1}, colour);
     } else {
@@ -109,7 +114,7 @@ void RenderSystem::DrawLine(std::unique_ptr<cv::Mat> &imageBackground,
 
 void RenderSystem::DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
                                 int x0, int y0, int x1, int y1, int x2, int y2,
-                                const cv::Scalar_<double> &colour) {
+                                const Color &colour) {
     DrawLine(imageBackground, x0, y0, x1, y1, colour);
     DrawLine(imageBackground, x1, y1, x2, y2, colour);
     DrawLine(imageBackground, x2, y2, x0, y0, colour);
@@ -196,33 +201,6 @@ glm::mat4x4 RenderSystem::getScalingMatrix(glm::vec3 scaleVector) {
     mat[1][1] = scaleVector.y;
     mat[2][2] = scaleVector.z;
     return mat;
-}
-
-glm::mat3x4 RenderSystem::adjustPositionXY(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
-
-    glm::mat3x4 triAdjustedXY = triangle;
-
-
-    // Maybe divide by camera z axis so that it moves smaller distances in the x and y axis
-    // when the object is further away
-    triAdjustedXY[0][0] += -cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
-    triAdjustedXY[0][1] += -cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
-    triAdjustedXY[1][0] += -cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
-    triAdjustedXY[1][1] += -cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
-    triAdjustedXY[2][0] += -cameraSystem.getCameraPosition().x + 1.0f + meshPosition.x;
-    triAdjustedXY[2][1] += -cameraSystem.getCameraPosition().y + 1.0f + meshPosition.y;
-
-    return triAdjustedXY;
-}
-
-glm::mat3x4 RenderSystem::adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition) {
-
-    glm::mat3x4 triAdjustedZ = triangle;
-    triAdjustedZ[0][2] = triangle[0][2] - cameraSystem.getCameraPosition().z;
-    triAdjustedZ[1][2] = triangle[1][2] - cameraSystem.getCameraPosition().z;
-    triAdjustedZ[2][2] = triangle[2][2] - cameraSystem.getCameraPosition().z;
-
-    return triAdjustedZ;
 }
 
 // Makes sure that a model is not rendered when to the right or left the screen limits

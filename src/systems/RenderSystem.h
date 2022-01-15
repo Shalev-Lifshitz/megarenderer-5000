@@ -33,25 +33,23 @@ private:
 
     static bool isInViewNear(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
-    static glm::mat3x4 subtractVecFromMatrix(glm::mat3x4 mat, glm::vec4 vec);
-
     static bool isInViewY(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
     static bool isInViewX(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
     static bool isInViewFar(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
-    static void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2,
-                              const cv::Scalar_<double> &color);
+    static void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
+                              int x0, int y0, int x1, int y1, int x2, int y2,
+                              const Color &color);
 
     static void DrawLine(std::unique_ptr<cv::Mat> &imageBackground,
                          int x0, int y0, int x1, int y1,
-                         const cv::Scalar_<double>& colour);
+                         const Color& colour);
 
     static void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
                              int x0, int y0, int x1, int y1, int x2, int y2,
-                             const cv::Scalar_<double>& colour);
-
+                             const Color& colour);
 
 public:
     RenderSystem(
@@ -60,12 +58,7 @@ public:
             int screenHeight1,
             int screenWidth1);
 
-    std::unique_ptr<cv::Mat> renderScene(cv::Mat &imageBackground, long long int i);
-
-    glm::mat3x4 adjustPositionXY(glm::mat3x4 mat1, glm::vec3 meshPosition, glm::vec3 cameraPosition);
-
-    glm::mat3x4 adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition);
-
+    std::unique_ptr<cv::Mat> renderScene(cv::Mat &imageBackground);
 };
 
 #endif //PSR_3D_RENDERER_RENDERSYSTEM_H
