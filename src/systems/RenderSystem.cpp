@@ -12,11 +12,8 @@ RenderSystem::RenderSystem(
         : cameraSystem(cameraSystem1), entitySystem(entitySystem1), screenHeight(screenHeight1),
           screenWidth(screenWidth1) {}
 
-std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground, long long int elapsed_time) {
+std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
     std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
-
-    auto thetaTime = 1.0f * elapsed_time;
-    int counter = 0;
 
     glm::vec3 cameraPosition = cameraSystem.getCameraPosition();
     glm::vec3 cameraOrientation = cameraSystem.getCameraOrientation();

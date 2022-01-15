@@ -1,5 +1,5 @@
 #include <opencv2/opencv.hpp>
-#include <chrono>
+//#include <chrono>
 
 #include "glm/gtx/string_cast.hpp"
 #include "Game.h"
@@ -33,7 +33,7 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
 
     int key;
     std::unique_ptr<cv::Mat> image;
-    auto start = std::chrono::steady_clock::now();
+//    auto start = std::chrono::steady_clock::now();
     bool printDebugInfo = false;
     while (key != 27) {
         cameraSystem.performSanityChecks();
@@ -43,9 +43,9 @@ bool Game::runGameLoop(std::string backgroundImagePath, int screenHeight, int sc
             std::cout << "Mouse Position: " << glm::to_string(mousePosition) << std::endl;
         }
 
-        auto end = std::chrono::steady_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-        image = renderSystem.renderScene(imageBackground, elapsed_time / 100);
+//        auto end = std::chrono::steady_clock::now();
+//        auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        image = renderSystem.renderScene(imageBackground);
 
         cv::imshow("Display window", *image);
 

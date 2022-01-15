@@ -10,8 +10,8 @@ class EntityBuilder {
      * Create entity and add relevant components to entitySystem.
      * @param entitySystem The entitySystem which will be mutated to contain the new entity's data.
      */
-    virtual void buildEntity(EntitySystem &entitySystem, glm::vec3 position,
-                             glm::vec3 orientation, glm::vec3 scale) = 0;
+    virtual void buildEntity(EntitySystem &entitySystem, Position position,
+                             Orientation orientation, Scale scale) = 0;
 };
 
 
