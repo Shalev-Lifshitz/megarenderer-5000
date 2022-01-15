@@ -13,8 +13,8 @@ private:
     Positions positions;
     Orientations orientations;
     Scales scales;
-    Colors colors;
     Meshes meshes;
+    Colors colors;
     int64_t totalEntitiesAdded;
 
     std::vector<glm::mat3x4> MeshGenerator(std::string shape);
@@ -30,19 +30,28 @@ public:
 
     EntityID getNewEntityID();
 
-    void addEntity(Entity entity, glm::vec3 position);
+    void addEntity(Entity entity, Position position);
 
     void removeEntity(EntityID id);
 
-    Positions *getPositions();
+    void addPositionWithID(Position position, EntityID id);
+    Position getPositionWithID(EntityID id);
 
-    Orientations *getOrientations();
+    void addOrientationWithID(Orientation orientation, EntityID id);
+    Orientation getOrientationWithID(EntityID id);
 
-    Scales *getScales();
+    void addScaleWithID(Scale scale, EntityID id);
+    Scale getScaleWithID(EntityID id);
 
-    Meshes *getMeshes();
+    void addMeshWithID(Mesh mesh, EntityID id);
+    Mesh getMeshWithID(EntityID id);
 
-    Colors *getColors();
+    void addColorWithID(Color color, EntityID id);
+    Color getColorWithID(EntityID id);
+
+    Meshes::const_iterator getMeshesIterBegin();
+
+    Meshes::const_iterator getMeshesIterEnd();
 };
 
 

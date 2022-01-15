@@ -10,10 +10,20 @@ using EntityID = int64_t;
 // Define the type of each component map
 template<typename Type>
 using ComponentMap = std::unordered_map<EntityID, Type>;
-using Positions = ComponentMap<glm::vec3>;
-using Orientations = ComponentMap<glm::vec3>;
-using Meshes = ComponentMap<std::vector<glm::mat3x4>>; // Each vector has shape numTriangles x 3 x 4
-using Scales = ComponentMap<glm::vec3>; // TODO: make this a vector
-using Colors = ComponentMap<cv::Scalar_<double>>;
+
+using Position = glm::vec3;
+using Positions = ComponentMap<Position>;
+
+using Orientation = glm::vec3;
+using Orientations = ComponentMap<Orientation>;
+
+using Mesh = std::vector<glm::mat3x4>;
+using Meshes = ComponentMap<Mesh>;
+
+using Scale = glm::vec3;
+using Scales = ComponentMap<Scale>;
+
+using Color = cv::Scalar_<double>;
+using Colors = ComponentMap<Color>;
 
 #endif //PSR_3D_RENDERER_ENTITYCOMPONENTS_H
