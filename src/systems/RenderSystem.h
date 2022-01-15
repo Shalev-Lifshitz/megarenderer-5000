@@ -29,25 +29,28 @@ private:
 
     static glm::mat4x4 getScalingMatrix(glm::vec3 scaleVector);
 
-    static bool triangleInView(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInFrustum(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
-    static bool cullingZNear(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewNear(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
     static glm::mat3x4 subtractVecFromMatrix(glm::mat3x4 mat, glm::vec4 vec);
 
-    static bool cullingY(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewY(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
-    static bool cullingX(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewX(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
-    static bool cullingZFar(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewFar(glm::mat3x4 triangle, glm::vec3 cameraPosition);
 
     static void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2,
                               const cv::Scalar_<double> &color);
 
-    static void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour);
+    static void DrawLine(std::unique_ptr<cv::Mat> &imageBackground,
+                         int x0, int y0, int x1, int y1,
+                         const cv::Scalar_<double>& colour);
 
-    static void
-    DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2, int colour);
+    static void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
+                             int x0, int y0, int x1, int y1, int x2, int y2,
+                             const cv::Scalar_<double>& colour);
 
 
 public:
