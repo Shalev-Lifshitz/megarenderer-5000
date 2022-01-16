@@ -47,10 +47,10 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             meshes[id] = MeshGenerator("pyramid");
             std::cout << "Finished." << std::endl;
             break;
-        case AXES:  // TODO: Fix to origin, pointing to +X.
+        case AXES:
             std::cout << "AXES" << std::endl;
             positions[id] = position;
-            orientations[id] = -cameraSystem.getCameraOrientation();
+            orientations[id] = glm::vec3(1, 0, 0);
             scales[id] = glm::vec3(1);
             colors[id] = {0, 0, 0};
             meshes[id] = MeshGenerator("axes");
@@ -86,24 +86,21 @@ Colors EntitySystem::getColors() {
 }
 
 void EntitySystem::updateGame(int keycode) {
-    glm::vec3 position = {cameraSystem.getCameraPosition().x,
-                          cameraSystem.getCameraPosition().y,
-                          -cameraSystem.getCameraPosition().z};
     switch (keycode) {
         case 83: // 'S' - SPHERE
-            addEntity(SPHERE, position);
+            addEntity(SPHERE, cameraSystem.getCameraPosition());
             break;
         case 67: // 'C' - CUBE
-            addEntity(CUBE, position);
+            addEntity(CUBE, cameraSystem.getCameraPosition());
             break;
         case 84: // 'T' - TORUS
-            addEntity(TORUS, position);
+            addEntity(TORUS, cameraSystem.getCameraPosition());
             break;
         case 80: // 'P' - PYRAMID
-            addEntity(PYRAMID, position);
+            addEntity(PYRAMID, cameraSystem.getCameraPosition());
             break;
         case 65: // 'A' - AXES
-            addEntity(AXES, position);
+            addEntity(AXES, glm::vec3(0));
             break;
     }
 }

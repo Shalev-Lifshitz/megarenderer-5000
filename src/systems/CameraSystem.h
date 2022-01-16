@@ -7,9 +7,21 @@
 class CameraSystem {
 private:
     Camera camera;
+
+    bool mouseIsBeingDragged = false;
+    glm::vec2 mousePositionPrev = glm::vec2(0);
+    glm::vec2 mousePositionCurr = glm::vec2(0);
+
+    float orientationSensitivity = 0.01;
+    float positionSensitivity = 0.1;
+
     glm::vec3 positiveX = glm::vec3(1, 0, 0);
     glm::vec3 positiveY = glm::vec3(0, 1, 0);
     glm::vec3 positiveZ = glm::vec3(0, 0, 1);
+
+    void updateCameraPosition(int keycode);
+
+    void updateCameraOrientation();
 
     void moveCameraForward(float multiplier);
 
@@ -23,24 +35,26 @@ private:
 
     void moveCameraDown(float multiplier);
 
+    void setCameraPosition(glm::vec3 newCameraPosition);
+
+    void setCameraOrientation(glm::vec3 newCameraOrientation);
+
 public:
     explicit CameraSystem(int cameraViewAngle);
 
-    void updateCamera(int keycode, glm::vec2 mousePosition);
+    void updateCamera(int keycode);
 
     glm::vec3 getCameraPosition();
 
-    void setCameraPosition(glm::vec3 newCameraPosition);
-
     glm::vec3 getCameraOrientation();
-
-    void setCameraOrientation(const glm::vec2 &mousePosition);
 
     int getCameraViewAngle();
 
     void performSanityChecks();
 
     void printCameraInfo();
+
+    void recordMouseEvent(int event, int x, int y, int flags);
 };
 
 
