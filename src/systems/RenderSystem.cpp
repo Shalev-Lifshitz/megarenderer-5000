@@ -9,8 +9,10 @@ RenderSystem::RenderSystem(
         CameraSystem &cameraSystem1,
         int screenHeight1,
         int screenWidth1)
-        : cameraSystem(cameraSystem1), entitySystem(entitySystem1), screenHeight(screenHeight1),
-          screenWidth(screenWidth1) {}
+        : cameraSystem(cameraSystem1)
+        , entitySystem(entitySystem1)
+        , screenHeight(screenHeight1)
+        , screenWidth(screenWidth1) {}
 
 std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
     std::unique_ptr<cv::Mat> image = std::make_unique<cv::Mat>(imageBackground.clone());
@@ -18,8 +20,12 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
     glm::vec3 cameraPosition = cameraSystem.getCameraPosition();
     glm::vec3 cameraOrientation = cameraSystem.getCameraOrientation();
 
-    // These matrices can be defined outside of the loop
-    glm::mat4x4 projectionMatrix = getProjectionMatrix();
+    // These matrices can be defined outside the loop
+    float fovX = 45;
+    float fovY = 45;
+    float zNear = 0.1;
+    float zFar = 100;
+    glm::mat4x4 projectionMatrix = getProjectionMatrix(fovX, fovY, zNear, zFar);
     glm::mat4x4 cameraMatrix = LinearAlgebraMath::getMatrixToRotateAtoB(glm::vec3(0, 0, 1), cameraOrientation);
     cameraMatrix = glm::translate(cameraMatrix, -cameraPosition);
 
@@ -42,9 +48,9 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
         // These matrices need entity info to define
         glm::mat4x4 modelToWorldMatrix = getModelToWorldMatrix(entityPosition);
         glm::mat4x4 scalingMatrix = getScalingMatrix(entityScale);
-        glm::mat4x4 finalMatrix = projectionMatrix * cameraMatrix * cameraMatrix * modelToWorldMatrix * scalingMatrix;
+        glm::mat4x4 finalMatrix = projectionMatrix * cameraMatrix * modelToWorldMatrix * scalingMatrix;
 
-        bool printMatrices = true;
+        bool printMatrices = false;
         if (printMatrices) {
             std::cout << std::endl;
             std::cout << "scalingMatrix: " << glm::to_string(scalingMatrix) << std::endl;
@@ -136,15 +142,9 @@ glm::mat3x4 RenderSystem::performProjection(glm::mat4x4 matProjection, glm::mat3
     return triProjected;
 }
 
-glm::mat4x4 RenderSystem::getProjectionMatrix() {
-
-//    glm::mat4x4 mat = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
-
-    float zNear = 0.1;
-    float zFar = 100;
-
-    float fovX = 45;
-    float fovY = 45;
+// TODO: Enable non-square aspect ratios.
+glm::mat4x4 RenderSystem::getProjectionMatrix(float fovX, float fovY, float zNear, float zFar) {
+//    glm::mat4x4 mat = glm::perspective(fovY, 1.0f, zNear, zFar);
 
     glm::mat4x4 mat(0);
     mat[0][0] = 1 / tan(fovX / 2);
