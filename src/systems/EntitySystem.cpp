@@ -11,7 +11,7 @@ EntityID EntitySystem::getNewEntityID() {
 }
 
 void EntitySystem::addEntity(Entity entity, Position position) {
-    EntityID id = totalEntitiesAdded;
+    EntityID id = getNewEntityID();
     switch (entity) {
         case SPHERE:
             std::cout << "SPHERE" << std::endl;
