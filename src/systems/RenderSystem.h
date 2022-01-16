@@ -29,15 +29,15 @@ private:
 
     static glm::mat4x4 getScalingMatrix(glm::vec3 scaleVector);
 
-    static bool isInFrustum(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInFrustum(glm::mat3x4 tri, float zNear, float zFar);
 
-    static bool isInViewNear(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewNear(glm::mat3x4 tri, float zNear);
 
-    static bool isInViewY(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewY(glm::mat3x4 tri, glm::vec3 cameraPosition);
 
-    static bool isInViewX(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewX(glm::mat3x4 tri, glm::vec3 cameraPosition);
 
-    static bool isInViewFar(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewFar(glm::mat3x4 tri, float zFar);
 
     static void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
                               int x0, int y0, int x1, int y1, int x2, int y2,
