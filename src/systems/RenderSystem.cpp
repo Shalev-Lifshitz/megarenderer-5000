@@ -204,43 +204,40 @@ glm::mat4x4 RenderSystem::getScalingMatrix(glm::vec3 scaleVector) {
 }
 
 // Makes sure that a model is not rendered when to the right or left the screen limits
-bool RenderSystem::isInViewX(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
-    bool inViewX = abs(triangle[0][0] - cameraPosition.x) > 2 and
-                   abs(triangle[1][0] - cameraPosition.x) > 2 and
-                   abs(triangle[2][0] - cameraPosition.x) > 2;
+bool RenderSystem::isInViewX(glm::mat3x4 tri, glm::vec3 cameraPosition) {
+    bool inViewX = abs(tri[0][0] - cameraPosition.x) > 2 and
+                   abs(tri[1][0] - cameraPosition.x) > 2 and
+                   abs(tri[2][0] - cameraPosition.x) > 2;
     return inViewX;
 }
 
 // Makes sure that a model is not rendered when above or below the screen limits
-bool RenderSystem::isInViewY(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
-    bool inViewY = abs(triangle[0][1] - cameraPosition.y) > 2 and
-                   abs(triangle[1][1] - cameraPosition.y) > 2 and
-                   abs(triangle[2][1] - cameraPosition.y) > 2;
+bool RenderSystem::isInViewY(glm::mat3x4 tri, glm::vec3 cameraPosition) {
+    bool inViewY = abs(tri[0][1] - cameraPosition.y) > 2 and
+                   abs(tri[1][1] - cameraPosition.y) > 2 and
+                   abs(tri[2][1] - cameraPosition.y) > 2;
     return inViewY;
 }
 
 // Makes sure that a model is not rendered when closer than the near sight limit
-bool RenderSystem::isInViewNear(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
-    bool inViewNear = triangle[0][2] + 1 > cameraPosition.z and
-                      triangle[1][2] + 1 > cameraPosition.z and
-                      triangle[2][2] + 1 > cameraPosition.z;
+bool RenderSystem::isInViewNear(glm::mat3x4 tri, float zNear) {
+    bool inViewNear = tri[0][2] > zNear and
+                      tri[1][2] > zNear and
+                      tri[2][2] > zNear;
     return inViewNear;
 }
 
 // Makes sure that a model is not rendered when further than the far sight limit
-bool RenderSystem::isInViewFar(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
-    bool inViewFar = triangle[0][2] + 1 > 2.02 and
-                     triangle[1][2] + 1 > 2.02 and
-                     triangle[2][2] + 1 > 2.02;
+bool RenderSystem::isInViewFar(glm::mat3x4 tri, float zFar) {
+    bool inViewFar = tri[0][2] < zFar and
+                     tri[1][2] < zFar and
+                     tri[2][2] < zFar;
     return inViewFar;
 }
 
-// Checks that a specific triangle making up a model is within the view frustum x, y and z limits
-bool RenderSystem::isInFrustum(glm::mat3x4 triangle, glm::vec3 cameraPosition) {
-    bool inFrustum = isInViewX(triangle, cameraPosition) and
-                     isInViewY(triangle, cameraPosition) and
-                     isInViewNear(triangle, cameraPosition) and
-                     isInViewFar(triangle, cameraPosition);
+// Checks that a specific tri making up a model is within the view frustum x, y and z limits
+bool RenderSystem::isInFrustum(glm::mat3x4 tri, float zNear, float zFar) {
+    bool inFrustum = isInViewNear(tri, zNear) and
+                     isInViewFar(tri, zFar);
     return inFrustum;
 }
-
