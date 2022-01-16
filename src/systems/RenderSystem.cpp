@@ -90,12 +90,13 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
 //                          triFinal[1][0], triFinal[1][1],
 //                          triFinal[2][0], triFinal[2][1],
 //                          entityColor);
-
-            DrawTriangle(image,
-                         triFinal[0][0], triFinal[0][1],
-                         triFinal[1][0], triFinal[1][1],
-                         triFinal[2][0], triFinal[2][1],
-                         entityColor);
+            if (isInFrustum(triFinal, zNear, zFar)) {
+                DrawTriangle(image,
+                             triFinal[0][0], triFinal[0][1],
+                             triFinal[1][0], triFinal[1][1],
+                             triFinal[2][0], triFinal[2][1],
+                             entityColor);
+            }
         }
     }
     return image;
