@@ -25,7 +25,8 @@ private:
 
     static glm::mat3x4 performProjection(glm::mat4x4 matProjection, glm::mat3x4 tri);
 
-    static glm::mat4x4 getProjectionMatrix(float fovX, float fovY, float zNear, float zFar);
+    static glm::mat4x4 getProjectionMatrix(float fovX, float fovY, float zNear, float zFar,
+                                           float screenHeight, float screenWidth);
 
     static glm::mat4x4 getScalingMatrix(glm::vec3 scaleVector);
 

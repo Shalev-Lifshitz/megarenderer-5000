@@ -25,7 +25,7 @@ std::unique_ptr<cv::Mat> RenderSystem::renderScene(cv::Mat &imageBackground) {
     float fovY = 45;
     float zNear = 0.1;
     float zFar = 100;
-    glm::mat4x4 projectionMatrix = getProjectionMatrix(fovX, fovY, zNear, zFar);
+    glm::mat4x4 projectionMatrix = getProjectionMatrix(fovX, fovY, zNear, zFar, screenHeight, screenWidth);
     glm::mat4x4 cameraMatrix = LinearAlgebraMath::getMatrixToRotateAtoB(glm::vec3(0, 0, 1), cameraOrientation);
     cameraMatrix = glm::translate(cameraMatrix, -cameraPosition);
 
@@ -143,12 +143,13 @@ glm::mat3x4 RenderSystem::performProjection(glm::mat4x4 matProjection, glm::mat3
     return triProjected;
 }
 
-// TODO: Enable non-square aspect ratios.
-glm::mat4x4 RenderSystem::getProjectionMatrix(float fovX, float fovY, float zNear, float zFar) {
+glm::mat4x4 RenderSystem::getProjectionMatrix(float fovX, float fovY, float zNear, float zFar,
+                                              float screenHeight, float screenWidth) {
 //    glm::mat4x4 mat = glm::perspective(fovY, 1.0f, zNear, zFar);
+    float aspectRatio = screenHeight / screenWidth;
 
     glm::mat4x4 mat(0);
-    mat[0][0] = 1 / tan(fovX / 2);
+    mat[0][0] = aspectRatio / tan(fovX / 2);
     mat[1][1] = 1 / tan(fovY / 2);
     mat[2][2] = -((zFar + zNear) / (zFar - zNear));
     mat[2][3] = -1;
