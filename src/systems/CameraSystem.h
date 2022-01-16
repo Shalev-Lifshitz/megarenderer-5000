@@ -12,8 +12,8 @@ private:
     glm::vec2 mousePositionPrev = glm::vec2(0);
     glm::vec2 mousePositionCurr = glm::vec2(0);
 
-    float orientationSensitivity = 0.01;
-    float positionSensitivity = 0.1;
+    float orientationSensitivity = 0.001;
+    float positionSensitivity = 1;
 
     glm::vec3 positiveX = glm::vec3(1, 0, 0);
     glm::vec3 positiveY = glm::vec3(0, 1, 0);

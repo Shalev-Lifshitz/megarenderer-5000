@@ -25,30 +25,32 @@ private:
 
     static glm::mat3x4 performProjection(glm::mat4x4 matProjection, glm::mat3x4 tri);
 
-    static glm::mat4x4 getProjectionMatrix();
+    static glm::mat4x4 getProjectionMatrix(float fovX, float fovY, float zNear, float zFar,
+                                           float screenHeight, float screenWidth);
 
     static glm::mat4x4 getScalingMatrix(glm::vec3 scaleVector);
 
-    static bool triangleInView(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInFrustum(glm::mat3x4 tri, float zNear, float zFar);
 
-    static bool cullingZNear(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewNear(glm::mat3x4 tri, float zNear);
 
-    static glm::mat3x4 subtractVecFromMatrix(glm::mat3x4 mat, glm::vec4 vec);
+    static bool isInViewY(glm::mat3x4 tri, glm::vec3 cameraPosition);
 
-    static bool cullingY(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewX(glm::mat3x4 tri, glm::vec3 cameraPosition);
 
-    static bool cullingX(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static bool isInViewFar(glm::mat3x4 tri, float zFar);
 
-    static bool cullingZFar(glm::mat3x4 triangle, glm::vec3 cameraPosition);
+    static void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground,
+                              int x0, int y0, int x1, int y1, int x2, int y2,
+                              const Color &color);
 
-    static void FillTriangles(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2,
-                              const cv::Scalar_<double> &color);
+    static void DrawLine(std::unique_ptr<cv::Mat> &imageBackground,
+                         int x0, int y0, int x1, int y1,
+                         const Color& colour);
 
-    static void DrawLine(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int colour);
-
-    static void
-    DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground, int x0, int y0, int x1, int y1, int x2, int y2, int colour);
-
+    static void DrawTriangle(std::unique_ptr<cv::Mat> &imageBackground,
+                             int x0, int y0, int x1, int y1, int x2, int y2,
+                             const Color& colour);
 
 public:
     RenderSystem(
@@ -57,12 +59,7 @@ public:
             int screenHeight1,
             int screenWidth1);
 
-    std::unique_ptr<cv::Mat> renderScene(cv::Mat &imageBackground, long long int i);
-
-    glm::mat3x4 adjustPositionXY(glm::mat3x4 mat1, glm::vec3 meshPosition, glm::vec3 cameraPosition);
-
-    glm::mat3x4 adjustPositionZ(glm::mat3x4 triangle, glm::vec3 meshPosition, glm::vec3 cameraPosition);
-
+    std::unique_ptr<cv::Mat> renderScene(cv::Mat &imageBackground);
 };
 
 #endif //PSR_3D_RENDERER_RENDERSYSTEM_H

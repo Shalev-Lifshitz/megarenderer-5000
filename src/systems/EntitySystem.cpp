@@ -1,15 +1,17 @@
 #include "EntitySystem.h"
-#include "../external-libraries/stl_reader.h"
+#include "../mesh-builders/GridEntityBuilder.h"
 
 EntitySystem::EntitySystem(CameraSystem &cameraSystem1)
         : cameraSystem(cameraSystem1) {}
 
-void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
-    // Obtain new entity ID
+EntityID EntitySystem::getNewEntityID() {
     totalEntitiesAdded++;
     EntityID id = totalEntitiesAdded;
+    return id;
+}
 
-    // TODO: Fill this with real code. Also, use builders?
+void EntitySystem::addEntity(Entity entity, Position position) {
+    EntityID id = getNewEntityID();
     switch (entity) {
         case SPHERE:
             std::cout << "SPHERE" << std::endl;
@@ -42,7 +44,7 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             std::cout << "PYRAMID" << std::endl;
             positions[id] = position;
             orientations[id] = -cameraSystem.getCameraOrientation();
-            scales[id] = glm::vec3(1);
+            scales[id] = glm::vec3(1, -1, 1);
             colors[id] = {255, 0, 255};
             meshes[id] = MeshGenerator("pyramid");
             std::cout << "Finished." << std::endl;
@@ -56,33 +58,22 @@ void EntitySystem::addEntity(Entity entity, glm::vec3 position) {
             meshes[id] = MeshGenerator("axes");
             std::cout << "Finished." << std::endl;
             break;
+        case GRID:
+            std::cout << "GRID" << std::endl;
+            GridEntityBuilder gridEntityBuilder;
+            auto orientation = glm::vec3(1, 0, 0); // TODO: ???
+            gridEntityBuilder.buildEntity(*this, glm::vec3(0), orientation, glm::vec3(1));
+            std::cout << "Finished." << std::endl;
+            break;
     }
 }
 
 void EntitySystem::removeEntity(EntityID id) {
     positions.erase(id);
     orientations.erase(id);
+    scales.erase(id);
     meshes.erase(id);
-}
-
-Positions EntitySystem::getPositions() {
-    return positions;
-}
-
-Orientations EntitySystem::getOrientations() {
-    return orientations;
-}
-
-Meshes EntitySystem::getMeshes() {
-    return meshes;
-}
-
-Scales EntitySystem::getScales() {
-    return scales;
-}
-
-Colors EntitySystem::getColors() {
-    return colors ;
+    colors.erase(id);
 }
 
 void EntitySystem::updateGame(int keycode) {
@@ -102,13 +93,15 @@ void EntitySystem::updateGame(int keycode) {
         case 65: // 'A' - AXES
             addEntity(AXES, glm::vec3(0));
             break;
+        case 71: // 'G' - GRID
+            addEntity(GRID, glm::vec3(0));
+            break;
     }
 }
 
 std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape) {
     std::vector<float> coords, normals;
     std::vector<unsigned int> tris, solids;
-    //TODO: Need to figure a way to make relative paths work
     std::string sh = "./meshes/" + shape + ".stl"; // This line is not working yet
     try {
         stl_reader::ReadStlFile(sh.c_str(), coords, normals, tris, solids);
@@ -130,4 +123,52 @@ std::vector<glm::mat3x4> EntitySystem::MeshGenerator(std::string shape) {
     catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }
+}
+
+void EntitySystem::addPositionWithID(Position position, EntityID id) {
+    positions[id] = position;
+}
+
+void EntitySystem::addOrientationWithID(Orientation orientation, EntityID id) {
+    orientations[id] = orientation;
+}
+
+void EntitySystem::addScaleWithID(Scale scale, EntityID id) {
+    scales[id] = scale;
+}
+
+void EntitySystem::addMeshWithID(Mesh mesh, EntityID id) {
+    meshes[id] = mesh;
+}
+
+void EntitySystem::addColorWithID(Color color, EntityID id) {
+    colors[id] = color;
+}
+
+Orientation EntitySystem::getPositionWithID(EntityID id) {
+    return positions[id];
+}
+
+Orientation EntitySystem::getOrientationWithID(EntityID id) {
+    return orientations[id];
+}
+
+Scale EntitySystem::getScaleWithID(EntityID id) {
+    return scales[id];
+}
+
+Mesh EntitySystem::getMeshWithID(EntityID id) {
+    return meshes[id];
+}
+
+Color EntitySystem::getColorWithID(EntityID id) {
+    return colors[id];
+}
+
+Meshes::const_iterator EntitySystem::getMeshesIterBegin() {
+    return meshes.begin();
+}
+
+Meshes::const_iterator EntitySystem::getMeshesIterEnd() {
+    return meshes.end();
 }
